@@ -5,9 +5,6 @@ from tools import *
 
 global ids
 app = Flask(__name__)
-max_duplicate_messages = 3
-load_dotenv(find_dotenv())
-url = os.environ.get('URL')
 future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
     path = '/etc/futurebot/'
@@ -30,7 +27,7 @@ def firewall():
             if str(r['callback_query']['from']['id']) == r['callback_query']['message']['reply_markup']['inline_keyboard'][0][0]['callback_data']:
                 try:
                     captcha_denied.remove(r['callback_query']['message']['reply_markup']['inline_keyboard'][0][0]['callback_data'])
-                    with open(f'{path}captcha_denied.txt', 'w', encoding='utf-8') as f:
+                    with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
                         f.write(' '.join(captcha_denied))
                 except ValueError:
                     pass
@@ -68,7 +65,7 @@ def group_handler(r):
     elif 'left_chat_participant' in r['message']:
         try:
             captcha_denied.remove(str(r['message']['left_chat_participant']['id']))
-            with open(f'{path}captcha_denied.txt', 'w', encoding='utf-8') as f:
+            with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
                 f.write(' '.join(captcha_denied))
         except ValueError:
             pass
@@ -79,7 +76,7 @@ def group_handler(r):
             username = first_name
         send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]})
         captcha_denied.append(str(r['message']['new_chat_participant']['id']))
-        with open(f'{path}captcha_denied.txt', 'w', encoding='utf-8') as f:
+        with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
             f.write(' '.join(captcha_denied))
     elif 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message']:
         msg = r['message']['caption']

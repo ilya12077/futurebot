@@ -10,6 +10,7 @@ from dotenv import load_dotenv, find_dotenv
 
 safe_mode = False
 spam_timeout = 3 * 60  # в секундах
+max_duplicate_messages = 3
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
