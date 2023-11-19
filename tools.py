@@ -27,7 +27,7 @@ def delete_message(chat_id, message_id):
 
 def count_duplicate_messages(user_id: str, message: str = None, file_unique_id: str = None) -> int:
     count = 0
-    with open(f'data/history.txt', 'r', encoding='utf-8') as f:
+    with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
         for i in f.readlines():
             if i.split()[1] == user_id:
                 r = ast.literal_eval(i[i.find('{'):])
