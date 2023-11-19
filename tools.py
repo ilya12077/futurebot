@@ -27,7 +27,7 @@ def delete_message(chat_id, message_id):
 
 def count_duplicate_messages(user_id: str, message: str = None, file_unique_id: str = None) -> int:
     count = 0
-    with open(f'/data/history.txt', 'r', encoding='utf-8') as f:
+    with open(f'data/history.txt', 'r', encoding='utf-8') as f:
         for i in f.readlines():
             if i.split()[1] == user_id:
                 r = ast.literal_eval(i[i.find('{'):])
@@ -41,18 +41,18 @@ def count_duplicate_messages(user_id: str, message: str = None, file_unique_id: 
 
 
 def clear_history():
-    with open(f'{path}/data/history.txt', 'r', encoding='utf-8') as f:
+    with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
         a = f.readlines()
         for index, record in enumerate(a):
             if int(time.time()) - int(record.split()[0]) > spam_timeout:
                 a[index] = ''
-    with open(f'{path}/data/history.txt', 'w', encoding='utf-8') as f:
+    with open(f'{path}data/history.txt', 'w', encoding='utf-8') as f:
         f.write(''.join(a))
 
 
 def append_history(user_id: int | str, r: str, date=time.time):
     clear_history()
-    with open(f'{path}/data/history.txt', 'a', encoding='utf-8') as f:
+    with open(f'{path}data/history.txt', 'a', encoding='utf-8') as f:
         try:
             f.write(f'{int(date())} {user_id} {r} \n')
         except Exception as e:
@@ -115,7 +115,7 @@ def upload_video(chat_id, file, caption=''):
 
 
 def append_log(user, msg):
-    with open(f'{path}/data/log.txt', 'a', encoding='cp1251') as f:
+    with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
         try:
             f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {user}: {msg}' + '\n')
         except Exception as e:

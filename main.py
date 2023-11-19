@@ -14,7 +14,7 @@ else:
     path = ''
 with open(f'{path}wordlist.txt', 'r', encoding='utf-8') as fl:
     wordlist = fl.read().split()
-with open(f'{path}/data/captcha_denied.txt', 'r', encoding='utf-8') as fl:
+with open(f'{path}data/captcha_denied.txt', 'r', encoding='utf-8') as fl:
     captcha_denied = fl.read().split()
 
 
