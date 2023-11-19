@@ -13,7 +13,7 @@ spam_timeout = 3 * 60  # в секундах
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
-    path = '/etc/telegrambot/'
+    path = '/etc/futurebot/'
 else:
     path = ''
 
