@@ -1,9 +1,9 @@
+import ast
 import datetime
 import html
 import json
 import os
 import time
-import ast
 
 import requests
 from dotenv import load_dotenv, find_dotenv
@@ -19,6 +19,16 @@ else:
 
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
+
+
+def keyboards(user):
+    global ids
+    if user in ids:
+        return {'keyboard': [[{'text': 'Добавить запрещенное слово'}, {'text': 'Удалить запрещенное слово'}],
+                             [{'text': '/logs'}]],
+                'resize_keyboard': True}
+    else:
+        return None
 
 
 def delete_message(chat_id, message_id):
@@ -79,7 +89,7 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False):
         print(url + 'sendMessage', send_body)
     else:
         r = requests.post(url + 'sendMessage', json=send_body)
-        #print(r.content)
+        # print(r.content)
         if r.status_code == 400:
             send_message(chat_id, html.escape(message), keyboard, spoiler)
 
@@ -114,10 +124,10 @@ def upload_video(chat_id, file, caption=''):
         requests.post(f'{url}sendVideo?chat_id={chat_id}&caption={caption}', files=files)
 
 
-def append_log(user, msg):
+def append_log(msg):
     with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
         try:
-            f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {user}: {msg}' + '\n')
+            f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
         except Exception as e:
             f.write(f'Exception {e}' + '\n')
 
