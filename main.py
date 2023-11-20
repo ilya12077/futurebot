@@ -3,15 +3,14 @@ from waitress import serve
 
 from tools import *
 
-global ids
+global ids, wordlist
 app = Flask(__name__)
 future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
     path = '/etc/futurebot/'
 else:
     path = ''
-with open(f'{path}wordlist.txt', 'r', encoding='utf-8') as fl:
-    wordlist = fl.read().split()
+
 with open(f'{path}data/captcha_denied.txt', 'r', encoding='utf-8') as fl:
     captcha_denied = fl.read().split()
 
@@ -52,13 +51,13 @@ def group_handler(r):
         delete_message(chat_id, message_id)
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or any(word in msg.lower() for word in wordlist):
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
     elif 'text' in r['message']:
         msg = r['message']['text']
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or any(word in msg.lower() for word in wordlist):
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
@@ -89,14 +88,13 @@ def group_handler(r):
             msg = r['message']['caption']
         else:
             msg = 'document or smt'
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or any(word in msg.lower() for word in wordlist):
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
 
 
 def waiting_user_handler(r):
-    global wordlist
     msg = r['message']['text']
     user_id = str(r['message']['from']['id'])
     reason = ids[user_id]['waiting']['params']['reason']
@@ -150,6 +148,7 @@ def waiting_user_handler(r):
 
 def dm_handler(r):
     user_id = str(r['message']['from']['id'])
+    first_name = r['message']['from']['first_name']
     if 'text' not in r['message']:
         send_message(user_id, 'Я понимаю только текст')
         return
@@ -157,6 +156,8 @@ def dm_handler(r):
     if user_id in ids and ids[user_id]['waiting']['is_waiting']:
         waiting_user_handler(r)
         return
+    if user_id in ids and user_id != "647372660":
+        append_dm_log(user_id, msg, first_name)
     match msg:
         case '/start':
             send_message(user_id, 'Чего желаешь?', keyboards(user_id))
@@ -164,7 +165,7 @@ def dm_handler(r):
             data = {'keyboard': [[{'text': 'Отмена'}]],
                     'one_time_keyboard': True,
                     'resize_keyboard': True}
-            send_message(user_id, f'Введите одно слово или несколько через пробел (например: <i>работа</i> или <i>работа зарплата лс</i>). Текущий список слов:\n<pre>{" ".join(wordlist)}</pre>', data)
+            send_message(user_id, f'Введите одно слово или несколько через пробел (например: <i>работа</i> или <i>работа зарплата лс</i>). Также можно ввести слова через &, тогда сообщение удалится, только если присутствуют оба слова. Текущий список слов:\n<pre>{" ".join(wordlist)}</pre>', data)
             ids[user_id]['waiting']['is_waiting'] = True
             ids[user_id]['waiting']['params'] = {'reason': 'add word'}
             with open(f'{path}names.json', 'w') as f:
@@ -190,6 +191,18 @@ def dm_handler(r):
                     requests.post(url + 'sendMessage', json=send_body)
                 else:
                     upload_file(user_id, 'log.txt')
+        case '/dm_logs' if user_id == "647372660":
+            with open(f'{path}data/dm_log.txt', 'r', encoding='cp1251') as f:
+                log = f.read()
+                if len(log) <= 4096:
+                    send_body = {
+                        'chat_id': user_id,
+                        'text': log,
+                        'reply_markup': keyboards(user_id)
+                    }
+                    requests.post(url + 'sendMessage', json=send_body)
+                else:
+                    upload_file(user_id, 'dm_log.txt')
         case _:
             send_message(user_id, 'Неизвестная команда', keyboards(user_id))
 

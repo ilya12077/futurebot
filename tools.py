@@ -20,6 +20,24 @@ else:
 
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
+with open(f'{path}wordlist.txt', 'r', encoding='utf-8') as fl:
+    wordlist = fl.read().split()
+
+
+def is_in_wordlist(msg: str) -> bool:
+    for word in wordlist:
+        if '&' in word:
+            word = word.split('&')
+            delete = True
+            for i in word:
+                if i not in msg.lower():
+                    delete = False
+            if delete:
+                return True
+        else:
+            if word in msg.lower():
+                return True
+    return False
 
 
 def keyboards(user):
@@ -129,6 +147,14 @@ def append_log(msg):
     with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
         try:
             f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
+        except Exception as e:
+            f.write(f'Exception {e}' + '\n')
+
+
+def append_dm_log(user_id, msg, first_name=''):
+    with open(f'{path}data/dm_log.txt', 'a', encoding='cp1251') as f:
+        try:
+            f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {first_name}({user_id}): {msg}' + '\n')
         except Exception as e:
             f.write(f'Exception {e}' + '\n')
 
