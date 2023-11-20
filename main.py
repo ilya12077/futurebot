@@ -238,5 +238,3 @@ if __name__ == '__main__':
     else:
         app.run(host='192.168.1.10', port=8881)
         # app.run(host='192.168.1.21', port=8881)
-
-
