@@ -133,14 +133,14 @@ def upload_file(chat_id, file):
         requests.post(f'{url}sendDocument?chat_id={chat_id}', files=files)
 
 
-def upload_video(chat_id, file, caption=''):
+def upload_video(chat_id, file, caption='', reply_to_message_id=''):
     files = {
         'video': open(file, 'rb')
     }
     if safe_mode:
         print('{url}sendVideo?chat_id={chat_id}&caption={caption}')
     else:
-        requests.post(f'{url}sendVideo?chat_id={chat_id}&caption={caption}', files=files)
+        requests.post(f'{url}sendVideo?chat_id={chat_id}&caption={caption}&reply_to_message_id={reply_to_message_id}', files=files)
 
 
 def append_log(msg):

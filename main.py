@@ -53,13 +53,13 @@ def group_handler(r):
 
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg):
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
     elif 'sticker' in r['message']:
         file_unique_id = r['message']['sticker']['thumbnail']['file_unique_id']
-        if count_duplicate_messages(user_id, file_unique_id=file_unique_id) > max_duplicate_messages:
+        if count_duplicate_messages(user_id, file_unique_id=file_unique_id) > max_duplicate_messages and user_id not in ids:
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): *sticker*')
             return
@@ -77,36 +77,39 @@ def group_handler(r):
             username = first_name
         untrust_user_id = str(r['message']['new_chat_participant']['id'])
         send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
-        captcha_denied.append(untrust_user_id)
-        with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-            f.write(' '.join(captcha_denied))
+        if untrust_user_id not in captcha_denied:
+            captcha_denied.append(untrust_user_id)
+            with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
+                f.write(' '.join(captcha_denied))
     elif 'text' in r['message']:
         msg = r['message']['text']
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg):
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
         else:
             if 'reply_to_message' in r['message'] and msg == '/untrust':  # and user_id in ids:
-                # delete_message(chat_id, message_id)
-                with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-                    f.write(' '.join(captcha_denied))
-                if 'username' in r['message']['reply_to_message']['from']:
-                    username = '@' + r['message']['reply_to_message']['from']['username']
-                else:
-                    username = r['message']['reply_to_message']['from']['first_name']
+                reply_to_message_id = r['message']['reply_to_message']['message_id']
                 untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
-                send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
-                if user_id not in captcha_denied:
-                    captcha_denied.append(untrust_user_id)
-                    with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-                        f.write(' '.join(captcha_denied))
+                if untrust_user_id in ids:
+                    upload_video(chat_id, 'sad_joke.mp4', reply_to_message_id=reply_to_message_id)
+                else:
+                    delete_message(chat_id, reply_to_message_id)
+                    if 'username' in r['message']['reply_to_message']['from']:
+                        username = '@' + r['message']['reply_to_message']['from']['username']
+                    else:
+                        username = r['message']['reply_to_message']['from']['first_name']
+                    send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
+                    if untrust_user_id not in captcha_denied:
+                        captcha_denied.append(untrust_user_id)
+                        with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
+                            f.write(' '.join(captcha_denied))
     elif 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
         else:
             msg = 'document or smt'
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg):
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
@@ -235,3 +238,5 @@ if __name__ == '__main__':
     else:
         app.run(host='192.168.1.10', port=8881)
         # app.run(host='192.168.1.21', port=8881)
+
+
