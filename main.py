@@ -50,7 +50,13 @@ def group_handler(r):
     append_history(user_id, r)
     if user_id in captcha_denied:
         delete_message(chat_id, message_id)
-    if 'text' in r['message']:
+    if 'reply_markup' in r['message']:
+        msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or any(word in msg.lower() for word in wordlist):
+            delete_message(chat_id, message_id)
+            append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
+            return
+    elif 'text' in r['message']:
         msg = r['message']['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or any(word in msg.lower() for word in wordlist):
             delete_message(chat_id, message_id)
@@ -194,7 +200,3 @@ if __name__ == '__main__':
     else:
         app.run(host='192.168.1.10', port=8881)
         # app.run(host='192.168.1.21', port=8881)
-
-'''TODO:
-settings.*
-'''
