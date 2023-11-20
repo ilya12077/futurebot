@@ -79,7 +79,10 @@ def group_handler(r):
         with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
             f.write(' '.join(captcha_denied))
     elif 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message']:
-        msg = r['message']['caption']
+        if 'caption' in r['message']:
+            msg = r['message']['caption']
+        else:
+            msg = 'document or smt'
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or any(word in msg.lower() for word in wordlist):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
