@@ -5,7 +5,7 @@ from tools import *
 
 global ids, wordlist
 app = Flask(__name__)
-future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
+
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
     path = '/etc/futurebot/'
 else:
@@ -13,6 +13,8 @@ else:
 
 with open(f'{path}data/captcha_denied.txt', 'r', encoding='utf-8') as fl:
     captcha_denied = fl.read().split()
+with open(f'{path}data/allowed_userids.txt', 'r', encoding='utf-8') as fl:
+    allowed_userids = fl.read().split()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -26,9 +28,11 @@ def firewall():
             callback_data = str(r['callback_query']['data'])
             if str(r['callback_query']['from']['id']) == callback_data:
                 try:
-                    captcha_denied.remove(callback_data)
-                    with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-                        f.write(' '.join(captcha_denied))
+                    asked_usrids('remove', callback_data, '')
+                    if callback_data not in allowed_userids:
+                        allowed_userids.append(callback_data)
+                        with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
+                            f.write(' '.join(allowed_userids))
                 except ValueError:
                     pass
                 delete_message(future_group_id, r['callback_query']['message']['message_id'])
@@ -43,14 +47,22 @@ def firewall():
 
 
 def group_handler(r):
+    global allowed_userids
     user_id = str(r['message']['from']['id'])
     message_id = r['message']['message_id']
     chat_id = int(r['message']['chat']['id'])
     first_name = r['message']['from']['first_name']
     append_history(user_id, r)
-    if user_id in captcha_denied:
+    if user_id not in allowed_userids:
+        if 'username' in r['message']['from']:
+            username = '@' + r['message']['from']['username']
+        else:
+            username = first_name
         delete_message(chat_id, message_id)
-
+        append_log(f'удалено сообщение от {first_name}({user_id}): {r}')
+        if not asked_usrids('is', user_id, username):
+            asked_usrids('add', user_id, username)
+        return
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
@@ -63,24 +75,24 @@ def group_handler(r):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение от {first_name}({user_id}): *sticker*')
             return
-    elif 'left_chat_participant' in r['message']:
-        try:
-            captcha_denied.remove(str(r['message']['left_chat_participant']['id']))
-            with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-                f.write(' '.join(captcha_denied))
-        except ValueError:
-            pass
-    elif 'new_chat_participant' in r['message']:
-        if 'username' in r['message']['from']:
-            username = '@' + r['message']['from']['username']
-        else:
-            username = first_name
-        untrust_user_id = str(r['message']['new_chat_participant']['id'])
-        send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
-        if untrust_user_id not in captcha_denied:
-            captcha_denied.append(untrust_user_id)
-            with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-                f.write(' '.join(captcha_denied))
+    # elif 'left_chat_participant' in r['message']:
+    #     try:
+    #         captcha_denied.remove(str(r['message']['left_chat_participant']['id']))
+    #         with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
+    #             f.write(' '.join(captcha_denied))
+    #     except ValueError:
+    #         pass
+    # elif 'new_chat_participant' in r['message']:
+    #     if 'username' in r['message']['from']:
+    #         username = '@' + r['message']['from']['username']
+    #     else:
+    #         username = first_name
+    #     untrust_user_id = str(r['message']['new_chat_participant']['id'])
+    #     send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
+    #     if untrust_user_id not in captcha_denied:
+    #         captcha_denied.append(untrust_user_id)
+    #         with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
+    #             f.write(' '.join(captcha_denied))
     elif 'text' in r['message']:
         msg = r['message']['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
@@ -88,7 +100,7 @@ def group_handler(r):
             append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
             return
         else:
-            if 'reply_to_message' in r['message'] and msg == '/untrust':  # and user_id in ids:
+            if 'reply_to_message' in r['message'] and msg == '/notrust':  # and user_id in ids:
                 reply_to_message_id = r['message']['reply_to_message']['message_id']
                 untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
                 if untrust_user_id in ids:
@@ -99,11 +111,8 @@ def group_handler(r):
                         username = '@' + r['message']['reply_to_message']['from']['username']
                     else:
                         username = r['message']['reply_to_message']['from']['first_name']
-                    send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
-                    if untrust_user_id not in captcha_denied:
-                        captcha_denied.append(untrust_user_id)
-                        with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-                            f.write(' '.join(captcha_denied))
+                    if not asked_usrids('is', untrust_user_id, username):
+                        asked_usrids('add', untrust_user_id, username)
     elif 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']

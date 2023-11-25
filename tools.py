@@ -10,9 +10,10 @@ from dotenv import load_dotenv, find_dotenv
 
 safe_mode = False
 spam_timeout = 3 * 60  # в секундах
-max_duplicate_messages = 3
+max_duplicate_messages = 5
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
+future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
     path = '/etc/futurebot/'
 else:
@@ -22,6 +23,35 @@ with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
 with open(f'{path}wordlist.txt', 'r', encoding='utf-8') as fl:
     wordlist = fl.read().split()
+with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:
+    asked_userids = fl.read().split('\n')
+
+
+def asked_usrids(action, user_id, username):
+    if action == 'remove':
+        for i in asked_userids:
+            if i.split()[0] == user_id:
+                asked_userids.remove(i)
+        with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(asked_userids))
+    elif action == 'add':
+        send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]})
+        asked_userids.append(f'{user_id} {int(time.time())}')
+        with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
+            f.write('\n'.join(asked_userids))
+    elif action == 'is':
+        flag = False
+        for i in asked_userids:
+            if i.split()[0] == user_id:
+                flag = True
+                if int(time.time()) - int(i.split()[1]) > 3600 * 24:
+                    asked_userids.remove(i)
+                    send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]})
+                    asked_userids.append(f'{user_id} {int(time.time())}')
+                    with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
+                        f.write('\n'.join(asked_userids))
+        return flag
+
 
 
 def is_in_wordlist(msg: str) -> bool:
@@ -51,7 +81,10 @@ def keyboards(user):
 
 
 def delete_message(chat_id, message_id):
-    requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
+    if safe_mode:
+        print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
+    else:
+        requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
 
 
 def count_duplicate_messages(user_id: str, message: str = None, file_unique_id: str = None) -> int:
