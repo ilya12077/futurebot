@@ -11,8 +11,6 @@ if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
 else:
     path = ''
 
-with open(f'{path}data/captcha_denied.txt', 'r', encoding='utf-8') as fl:
-    captcha_denied = fl.read().split()
 with open(f'{path}data/allowed_userids.txt', 'r', encoding='utf-8') as fl:
     allowed_userids = fl.read().split()
 
@@ -59,7 +57,7 @@ def group_handler(r):
         else:
             username = first_name
         delete_message(chat_id, message_id)
-        append_log(f'удалено сообщение от {first_name}({user_id}): {r}')
+        append_log(f'удалено до авторизации пользователя: {r}')
         if not asked_usrids('is', user_id, username):
             asked_usrids('add', user_id, username)
         return
@@ -67,37 +65,19 @@ def group_handler(r):
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
             delete_message(chat_id, message_id)
-            append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
+            append_log(f'удалено сообщение по фильтру/количеству от {first_name}({user_id}): {msg}')
             return
     elif 'sticker' in r['message']:
         file_unique_id = r['message']['sticker']['thumbnail']['file_unique_id']
         if count_duplicate_messages(user_id, file_unique_id=file_unique_id) > max_duplicate_messages and user_id not in ids:
             delete_message(chat_id, message_id)
-            append_log(f'удалено сообщение от {first_name}({user_id}): *sticker*')
+            append_log(f'удалено сообщение по количеству от {first_name}({user_id}): *sticker*')
             return
-    # elif 'left_chat_participant' in r['message']:
-    #     try:
-    #         captcha_denied.remove(str(r['message']['left_chat_participant']['id']))
-    #         with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-    #             f.write(' '.join(captcha_denied))
-    #     except ValueError:
-    #         pass
-    # elif 'new_chat_participant' in r['message']:
-    #     if 'username' in r['message']['from']:
-    #         username = '@' + r['message']['from']['username']
-    #     else:
-    #         username = first_name
-    #     untrust_user_id = str(r['message']['new_chat_participant']['id'])
-    #     send_message(chat_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': untrust_user_id}]]})
-    #     if untrust_user_id not in captcha_denied:
-    #         captcha_denied.append(untrust_user_id)
-    #         with open(f'{path}data/captcha_denied.txt', 'w', encoding='utf-8') as f:
-    #             f.write(' '.join(captcha_denied))
     elif 'text' in r['message']:
         msg = r['message']['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
             delete_message(chat_id, message_id)
-            append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
+            append_log(f'удалено сообщение по фильтру/количеству от {first_name}({user_id}): {msg}')
             return
         else:
             if 'reply_to_message' in r['message'] and msg == '/notrust':  # and user_id in ids:
@@ -120,7 +100,7 @@ def group_handler(r):
             msg = 'document or smt'
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg) and user_id not in ids:
             delete_message(chat_id, message_id)
-            append_log(f'удалено сообщение от {first_name}({user_id}): {msg}')
+            append_log(f'удалено сообщение по фильтру/количеству от {first_name}({user_id}): {msg}')
             return
 
 
@@ -210,7 +190,7 @@ def dm_handler(r):
             with open(f'{path}names.json', 'w') as f:
                 json.dump(ids, f, indent=2)
         case '/logs' if user_id in ids:
-            with open(f'{path}data/log.txt', 'r', encoding='cp1251') as f:
+            with open(f'{path}data/log.txt', 'r', encoding='utf-8') as f:
                 log = f.read()
                 if len(log) <= 4096:
                     send_body = {
@@ -226,7 +206,7 @@ def dm_handler(r):
                     }
                 requests.post(url + 'sendMessage', json=send_body)
         case '/dm_logs' if user_id == "647372660":
-            with open(f'{path}data/dm_log.txt', 'r', encoding='cp1251') as f:
+            with open(f'{path}data/dm_log.txt', 'r', encoding='utf-8') as f:
                 log = f.read()
                 if len(log) <= 4096:
                     send_body = {

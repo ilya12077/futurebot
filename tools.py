@@ -53,7 +53,6 @@ def asked_usrids(action, user_id, username):
         return flag
 
 
-
 def is_in_wordlist(msg: str) -> bool:
     for word in wordlist:
         if '&' in word:
@@ -177,15 +176,18 @@ def upload_video(chat_id, file, caption='', reply_to_message_id=''):
 
 
 def append_log(msg):
-    with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
-        try:
+    try:
+        with open(f'{path}data/log.txt', 'a', encoding='utf-8') as f:
             f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
-        except Exception as e:
-            f.write(f'Exception {e}' + '\n')
+
+    except Exception as e:
+        with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
+            f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
+            f.write(f'^^^^^caught exception {e}' + '\n')
 
 
 def append_dm_log(user_id, msg, first_name=''):
-    with open(f'{path}data/dm_log.txt', 'a', encoding='cp1251') as f:
+    with open(f'{path}data/dm_log.txt', 'a', encoding='utf-8') as f:
         try:
             f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {first_name}({user_id}): {msg}' + '\n')
         except Exception as e:
