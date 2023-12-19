@@ -10,7 +10,9 @@ from dotenv import load_dotenv, find_dotenv
 
 safe_mode = False
 spam_timeout = 3 * 60  # в секундах
+authentication_message_timeout = 60 * 60 * 24
 max_duplicate_messages = 5
+
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
 future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
@@ -44,7 +46,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
         for i in asked_userids:
             if i.split()[0] == user_id:
                 flag = True
-                if int(time.time()) - int(i.split()[1]) > 3600 * 24:
+                if int(time.time()) - int(i.split()[1]) > authentication_message_timeout:
                     asked_userids.remove(i)
                     asked_usrids('add', user_id, username, reply_to_message_id)
         return flag
