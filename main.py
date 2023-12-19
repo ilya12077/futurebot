@@ -90,8 +90,8 @@ def group_handler(r):
                         username = '@' + r['message']['reply_to_message']['from']['username']
                     else:
                         username = r['message']['reply_to_message']['from']['first_name']
-                    if not asked_usrids('is', untrust_user_id, username, message_id):
-                        asked_usrids('add', untrust_user_id, username, message_id)
+                    if not asked_usrids('is', untrust_user_id, username, reply_to_message_id):
+                        asked_usrids('add', untrust_user_id, username, reply_to_message_id)
                     delete_message(chat_id, reply_to_message_id)
                     try:
                         if untrust_user_id in allowed_userids:
