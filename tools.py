@@ -27,7 +27,7 @@ with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:
     asked_userids = fl.read().split('\n')
 
 
-def asked_usrids(action, user_id, username):
+def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
     if action == 'remove':
         for i in asked_userids:
             if i.split()[0] == user_id:
@@ -35,7 +35,7 @@ def asked_usrids(action, user_id, username):
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
     elif action == 'add':
-        send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]})
+        send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
         asked_userids.append(f'{user_id} {int(time.time())}')
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
@@ -46,10 +46,7 @@ def asked_usrids(action, user_id, username):
                 flag = True
                 if int(time.time()) - int(i.split()[1]) > 3600 * 24:
                     asked_userids.remove(i)
-                    send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]})
-                    asked_userids.append(f'{user_id} {int(time.time())}')
-                    with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
-                        f.write('\n'.join(asked_userids))
+                    asked_usrids('add', user_id, username, reply_to_message_id)
         return flag
 
 
@@ -120,7 +117,7 @@ def append_history(user_id: int | str, r: str, date=time.time):
             f.write(f'Exception {e}' + '\n')
 
 
-def send_message(chat_id: int | str, message, keyboard=None, spoiler=False):
+def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None):
     if spoiler:
         message = f'<tg-spoiler>{message}</tg-spoiler>'
     if keyboard is None:
@@ -136,6 +133,8 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False):
             'parse_mode': 'HTML',
             'reply_markup': keyboard
         }
+    if reply_to_message_id is not None:
+        send_body['reply_to_message_id'] = reply_to_message_id
     if safe_mode:
         print(url + 'sendMessage', send_body)
     else:

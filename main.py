@@ -26,7 +26,7 @@ def firewall():
             callback_data = str(r['callback_query']['data'])
             if str(r['callback_query']['from']['id']) == callback_data:
                 try:
-                    asked_usrids('remove', callback_data, '')
+                    asked_usrids('remove', callback_data, '', None)
                     if callback_data not in allowed_userids:
                         allowed_userids.append(callback_data)
                         with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
@@ -56,10 +56,10 @@ def group_handler(r):
             username = '@' + r['message']['from']['username']
         else:
             username = first_name
+        if not asked_usrids('is', user_id, username, message_id):
+            asked_usrids('add', user_id, username, message_id)
         delete_message(chat_id, message_id)
         append_log(f'удалено до авторизации пользователя: {r}')
-        if not asked_usrids('is', user_id, username):
-            asked_usrids('add', user_id, username)
         return
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
@@ -86,13 +86,13 @@ def group_handler(r):
                 if untrust_user_id in ids:
                     upload_video(chat_id, 'sad_joke.mp4', reply_to_message_id=reply_to_message_id)
                 else:
-                    delete_message(chat_id, reply_to_message_id)
                     if 'username' in r['message']['reply_to_message']['from']:
                         username = '@' + r['message']['reply_to_message']['from']['username']
                     else:
                         username = r['message']['reply_to_message']['from']['first_name']
-                    if not asked_usrids('is', untrust_user_id, username):
-                        asked_usrids('add', untrust_user_id, username)
+                    if not asked_usrids('is', untrust_user_id, username, message_id):
+                        asked_usrids('add', untrust_user_id, username, message_id)
+                    delete_message(chat_id, reply_to_message_id)
                     try:
                         if untrust_user_id in allowed_userids:
                             allowed_userids.remove(untrust_user_id)
