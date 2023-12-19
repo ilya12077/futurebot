@@ -93,6 +93,13 @@ def group_handler(r):
                         username = r['message']['reply_to_message']['from']['first_name']
                     if not asked_usrids('is', untrust_user_id, username):
                         asked_usrids('add', untrust_user_id, username)
+                    try:
+                        if untrust_user_id in allowed_userids:
+                            allowed_userids.remove(untrust_user_id)
+                            with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
+                                f.write(' '.join(allowed_userids))
+                    except ValueError:
+                        pass
     elif 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
