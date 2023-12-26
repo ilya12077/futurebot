@@ -3,6 +3,7 @@ import datetime
 import html
 import json
 import os
+import threading
 import time
 
 import requests
@@ -10,7 +11,7 @@ from dotenv import load_dotenv, find_dotenv
 
 safe_mode = False
 spam_timeout = 3 * 60  # в секундах
-authentication_message_timeout = 60 * 60 * 24
+authentication_message_timeout = 60
 max_duplicate_messages = 5
 
 load_dotenv(find_dotenv())
@@ -29,6 +30,11 @@ with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:
     asked_userids = fl.read().split('\n')
 
 
+def wait_for_deletion(message_id, delay: int):
+    timer = threading.Timer(delay, delete_message, args=(future_group_id, message_id))
+    timer.start()
+
+
 def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
     if action == 'remove':
         for i in asked_userids:
@@ -37,7 +43,8 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
     elif action == 'add':
-        send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
+        r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
+        wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
         asked_userids.append(f'{user_id} {int(time.time())}')
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
@@ -144,6 +151,8 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
         # print(r.content)
         if r.status_code == 400:
             send_message(chat_id, html.escape(message), keyboard, spoiler)
+        else:
+            return r
 
 
 def upload_photo(chat_id, file):

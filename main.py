@@ -81,6 +81,7 @@ def group_handler(r):
             return
         else:
             if 'reply_to_message' in r['message'] and msg == '/notrust':  # and user_id in ids:
+                delete_message(chat_id, r['message']['message_id'])
                 reply_to_message_id = r['message']['reply_to_message']['message_id']
                 untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
                 if untrust_user_id in ids:
