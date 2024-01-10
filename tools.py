@@ -24,7 +24,7 @@ else:
 
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
-with open(f'{path}wordlist.txt', 'r', encoding='utf-8') as fl:
+with open(f'{path}data/wordlist.txt', 'r', encoding='utf-8') as fl:
     wordlist = fl.read().split()
 with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:
     asked_userids = fl.read().split('\n')
