@@ -51,17 +51,10 @@ def firewall():
 
 def group_handler(r):
     global allowed_userids
-    if 'sender_chat' in r['message']:
-        user_id = str(r['message']['sender_chat']['id'])
-        first_name = str(r['message']['sender_chat']['title'])
-    else:
-        user_id = str(r['message']['from']['id'])
-        first_name = r['message']['from']['first_name']
+    user_id = str(r['message']['from']['id'])
+    first_name = r['message']['from']['first_name']
     if 'username' in r['message']['from']:
-        if 'sender_chat' in r['message']:
-            username = '@' + r['message']['sender_chat']['username']
-        else:
-            username = '@' + r['message']['from']['username']
+        username = '@' + r['message']['from']['username']
     else:
         username = first_name
     message_id = r['message']['message_id']
