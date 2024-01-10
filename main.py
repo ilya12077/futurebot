@@ -21,6 +21,9 @@ def firewall():
         return 'I\'m working'
     r = request.get_json()
     print(r)
+    if 'edited_message' in r:
+        r['message'] = r['edited_message']
+        del r['edited_message']
     if 'callback_query' in r:
         if r['callback_query']['message']['chat']['id'] == future_group_id:
             callback_data = str(r['callback_query']['data'])
