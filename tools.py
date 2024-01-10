@@ -59,7 +59,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
         return flag
 
 
-def is_in_wordlist(msg: str) -> bool:
+def is_in_wordlist(msg: str) -> list:
     for word in wordlist:
         if '&' in word:
             word = word.split('&')
@@ -68,11 +68,11 @@ def is_in_wordlist(msg: str) -> bool:
                 if i not in msg.lower():
                     delete = False
             if delete:
-                return True
+                return [True, word]
         else:
             if word in msg.lower():
-                return True
-    return False
+                return [True, word]
+    return [False, '']
 
 
 def keyboards(user):
