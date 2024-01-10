@@ -51,6 +51,10 @@ def firewall():
 
 def group_handler(r):
     global allowed_userids
+    if 'sender_chat' in r['message']:
+        true_user_id = str(r['message']['sender_chat']['id'])
+    else:
+        true_user_id = None
     user_id = str(r['message']['from']['id'])
     first_name = r['message']['from']['first_name']
     if 'username' in r['message']['from']:
@@ -68,19 +72,19 @@ def group_handler(r):
         return
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and user_id not in ids:
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and (user_id not in ids and true_user_id not in ids):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по фильтру({is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
             return
     elif 'sticker' in r['message']:
         file_unique_id = r['message']['sticker']['thumbnail']['file_unique_id']
-        if count_duplicate_messages(user_id, file_unique_id=file_unique_id) > max_duplicate_messages and user_id not in ids:
+        if count_duplicate_messages(user_id, file_unique_id=file_unique_id) > max_duplicate_messages and (user_id not in ids and true_user_id not in ids):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по количеству от {first_name}({user_id}): *sticker*')
             return
     elif 'text' in r['message']:
         msg = r['message']['text']
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and user_id not in ids:
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and (user_id not in ids and true_user_id not in ids):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по фильтру({is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
             return
@@ -111,7 +115,7 @@ def group_handler(r):
             msg = r['message']['caption']
         else:
             msg = 'document or smt'
-        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and user_id not in ids:
+        if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and (user_id not in ids and true_user_id not in ids):
             delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по фильтру({is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
             return
