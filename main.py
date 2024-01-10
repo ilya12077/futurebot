@@ -146,7 +146,7 @@ def waiting_user_handler(r):
                 else:
                     send_message(user_id, f'<i>{wrd}</i> уже в списке')
             if was_added:
-                with open(f'{path}wordlist.txt', 'w', encoding='utf-8') as f:
+                with open(f'{path}data/wordlist.txt', 'w', encoding='utf-8') as f:
                     f.write(' '.join(wordlist))
                 send_message(user_id, f'Добавил, теперь он выглядит так:\n<pre>{" ".join(wordlist)}</pre>', keyboards(user_id))
             else:
@@ -165,7 +165,7 @@ def waiting_user_handler(r):
                 else:
                     send_message(user_id, f'<i>{wrd}</i> не был в списке')
             if was_deleted:
-                with open(f'{path}wordlist.txt', 'w', encoding='utf-8') as f:
+                with open(f'{path}data/wordlist.txt', 'w', encoding='utf-8') as f:
                     f.write(' '.join(wordlist))
                 send_message(user_id, f'Удалил, теперь он выглядит так:\n<pre>{" ".join(wordlist)}</pre>', keyboards(user_id))
             else:
