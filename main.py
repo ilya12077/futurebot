@@ -21,6 +21,8 @@ def firewall():
         return 'I\'m working'
     r = request.get_json()
     print(r)
+    with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
+        f.write(str(r) + '\n')
     if 'edited_message' in r:
         r['message'] = r['edited_message']
         del r['edited_message']
