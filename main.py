@@ -38,7 +38,7 @@ def firewall():
                             f.write(' '.join(allowed_userids))
                 except ValueError:
                     pass
-                delete_message(future_group_id, r['callback_query']['message']['message_id'])
+                threading_delete_message(future_group_id, r['callback_query']['message']['message_id'])
             requests.post(url + f"answerCallbackQuery?callback_query_id={r['callback_query']['id']}")
     elif 'message' in r:
         chat_id = int(r['message']['chat']['id'])
@@ -67,30 +67,30 @@ def group_handler(r):
     if user_id not in allowed_userids:
         if not asked_usrids('is', user_id, username, message_id):
             asked_usrids('add', user_id, username, message_id)
-        delete_message(chat_id, message_id)
+        threading_delete_message(chat_id, message_id)
         append_log(f'удалено до авторизации пользователя: {r}')
         return
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and (user_id not in ids and true_user_id not in ids):
-            delete_message(chat_id, message_id)
+            threading_delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по фильтру({is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
             return
     elif 'sticker' in r['message']:
         file_unique_id = r['message']['sticker']['thumbnail']['file_unique_id']
         if count_duplicate_messages(user_id, file_unique_id=file_unique_id) > max_duplicate_messages and (user_id not in ids and true_user_id not in ids):
-            delete_message(chat_id, message_id)
+            threading_delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по количеству от {first_name}({user_id}): *sticker*')
             return
     elif 'text' in r['message']:
         msg = r['message']['text']
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and (user_id not in ids and true_user_id not in ids):
-            delete_message(chat_id, message_id)
+            threading_delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по фильтру({is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
             return
         else:
             if 'reply_to_message' in r['message'] and msg == '/notrust':  # and user_id in ids:
-                delete_message(chat_id, r['message']['message_id'])
+                threading_delete_message(chat_id, r['message']['message_id'])
                 reply_to_message_id = r['message']['reply_to_message']['message_id']
                 untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
                 if untrust_user_id in ids:
@@ -102,7 +102,7 @@ def group_handler(r):
                         username = r['message']['reply_to_message']['from']['first_name']
                     if not asked_usrids('is', untrust_user_id, username, reply_to_message_id):
                         asked_usrids('add', untrust_user_id, username, reply_to_message_id)
-                    delete_message(chat_id, reply_to_message_id)
+                    threading_delete_message(chat_id, reply_to_message_id)
                     try:
                         if untrust_user_id in allowed_userids:
                             allowed_userids.remove(untrust_user_id)
@@ -116,7 +116,7 @@ def group_handler(r):
         else:
             msg = 'document or smt'
         if count_duplicate_messages(user_id, message=msg) > max_duplicate_messages or is_in_wordlist(msg)[0] and (user_id not in ids and true_user_id not in ids):
-            delete_message(chat_id, message_id)
+            threading_delete_message(chat_id, message_id)
             append_log(f'удалено сообщение по фильтру({is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
             return
 

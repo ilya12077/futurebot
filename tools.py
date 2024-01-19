@@ -31,7 +31,7 @@ with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:
 
 
 def wait_for_deletion(message_id, delay: int):
-    timer = threading.Timer(delay, delete_message, args=(future_group_id, message_id))
+    timer = threading.Timer(delay, request_delete_message, args=(future_group_id, message_id))
     timer.start()
 
 
@@ -92,7 +92,11 @@ def keyboards(user):
         return None
 
 
-def delete_message(chat_id, message_id):
+def threading_delete_message(chat_id, message_id):
+    threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
+
+
+def request_delete_message(chat_id, message_id):
     if safe_mode:
         print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
     else:
