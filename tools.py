@@ -8,6 +8,7 @@ import time
 
 import requests
 from dotenv import load_dotenv, find_dotenv
+from flask import Response
 
 safe_mode = False
 spam_timeout = 3 * 60  # в секундах
@@ -43,11 +44,12 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
     elif action == 'add':
-        r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
-        wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
-        asked_userids.append(f'{user_id} {int(time.time())}')
-        with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
-            f.write('\n'.join(asked_userids))
+        if not safe_mode:
+            r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
+            wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
+            asked_userids.append(f'{user_id} {int(time.time())}')
+            with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
+                f.write('\n'.join(asked_userids))
     elif action == 'is':
         flag = False
         for i in asked_userids:
@@ -137,7 +139,7 @@ def append_history(user_id: int | str, r: str, date=time.time):
             f.write(f'Exception {e}' + '\n')
 
 
-def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None):
+def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None) -> None | Response:
     if spoiler:
         message = f'<tg-spoiler>{message}</tg-spoiler>'
     if keyboard is None:
