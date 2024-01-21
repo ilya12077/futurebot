@@ -10,7 +10,11 @@ import requests
 from dotenv import load_dotenv, find_dotenv
 from flask import Response
 
-safe_mode = False
+switch_safe_mode = False  # F ни малейшего запроса в сторону тг
+switch_authorize_all = False  # F добавлять всех сразу в allowed_ids
+switch_entire_authorization = True  # T авторизация (отправка соо, удаление)
+switch_message_deletion = True  # T любое удаление сообщение
+
 spam_timeout = 3 * 60  # в секундах
 authentication_message_timeout = 60
 max_duplicate_messages = 5
@@ -37,14 +41,14 @@ def wait_for_deletion(message_id, delay: int):
 
 
 def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
-    if action == 'remove':
+    if action == 'remove' and switch_entire_authorization:
         for i in asked_userids:
             if i.split()[0] == user_id:
                 asked_userids.remove(i)
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
-    elif action == 'add':
-        if not safe_mode:
+    elif action == 'add' and switch_entire_authorization:
+        if not switch_safe_mode:
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
             wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
             asked_userids.append(f'{user_id} {int(time.time())}')
@@ -88,7 +92,7 @@ def keyboards(user):
     global ids
     if user in ids:
         return {'keyboard': [[{'text': 'Добавить запрещенное слово'}, {'text': 'Удалить запрещенное слово'}],
-                             [{'text': '/logs'}]],
+                             [{'text': '/logs'}, {'text': 'админка'}]],
                 'resize_keyboard': True}
     else:
         return None
@@ -99,7 +103,7 @@ def threading_delete_message(chat_id, message_id):
 
 
 def request_delete_message(chat_id, message_id):
-    if safe_mode:
+    if switch_safe_mode or not switch_message_deletion:
         print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
     else:
         requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
@@ -140,6 +144,7 @@ def append_history(user_id: int | str, r: str, date=time.time):
 
 
 def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None) -> None | Response:
+    print(switch_safe_mode, switch_authorize_all, switch_entire_authorization, switch_message_deletion)
     if spoiler:
         message = f'<tg-spoiler>{message}</tg-spoiler>'
     if keyboard is None:
@@ -157,7 +162,7 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
         }
     if reply_to_message_id is not None:
         send_body['reply_to_message_id'] = reply_to_message_id
-    if safe_mode:
+    if switch_safe_mode:
         print(url + 'sendMessage', send_body)
     else:
         r = requests.post(url + 'sendMessage', json=send_body)
@@ -172,7 +177,7 @@ def upload_photo(chat_id, file):
     files = {
         'photo': open(file, 'rb')
     }
-    if safe_mode:
+    if switch_safe_mode:
         print(f'{url}sendPhoto?chat_id={chat_id}')
     else:
         requests.post(f'{url}sendPhoto?chat_id={chat_id}', files=files)
@@ -182,7 +187,7 @@ def upload_file(chat_id, file):
     files = {
         'document': open(file, 'rb')
     }
-    if safe_mode:
+    if switch_safe_mode:
         print(f'{url}sendDocument?chat_id={chat_id}')
     else:
         requests.post(f'{url}sendDocument?chat_id={chat_id}', files=files)
@@ -192,7 +197,7 @@ def upload_video(chat_id, file, caption='', reply_to_message_id=''):
     files = {
         'video': open(file, 'rb')
     }
-    if safe_mode:
+    if switch_safe_mode:
         print('{url}sendVideo?chat_id={chat_id}&caption={caption}')
     else:
         requests.post(f'{url}sendVideo?chat_id={chat_id}&caption={caption}&reply_to_message_id={reply_to_message_id}', files=files)
