@@ -69,7 +69,7 @@ def is_in_wordlist(msg: str) -> list:
     result = []
     previous_char = None
     for char in msg:
-        if char != previous_char and char != ' ':
+        if char != previous_char:
             result.append(char)
         previous_char = char
     msg = ''.join(result)
@@ -144,7 +144,7 @@ def append_history(user_id: int | str, r: str, date=time.time):
 
 
 def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None) -> None | Response:
-    print(switch_safe_mode, switch_authorize_all, switch_entire_authorization, switch_message_deletion)
+    # print(switch_safe_mode, switch_authorize_all, switch_entire_authorization, switch_message_deletion)
     if spoiler:
         message = f'<tg-spoiler>{message}</tg-spoiler>'
     if keyboard is None:
