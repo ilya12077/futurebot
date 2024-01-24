@@ -18,7 +18,7 @@ RUN touch /root/.ssh/known_hosts
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 
 # Clone the conf files into the docker container
-RUN git clone https://github.com/ilya12077/futurebot.git
+RUN git clone git@github.com:ilya12077/futurebot.git
 	
 	
 RUN cp -a ./futurebot/. /etc/futurebot/
