@@ -342,5 +342,5 @@ if __name__ == '__main__':
     if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
         serve(app, host='0.0.0.0', port=8881, url_scheme='http')
     else:
-        app.run(host='192.168.1.10', port=8881)
+        app.run(host='192.168.1.10', port=8885)
         # app.run(host='192.168.1.21', port=8881)
