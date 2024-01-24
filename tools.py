@@ -69,9 +69,10 @@ def is_in_wordlist(msg: str) -> list:
     result = []
     previous_char = None
     for char in msg:
-        if char != previous_char and char != ' ':
-            result.append(char)
-        previous_char = char
+        if char != ' ':
+            if char != previous_char:
+                result.append(char)
+            previous_char = char
     msg = ''.join(result)
     for word in wordlist:
         if '&' in word:
