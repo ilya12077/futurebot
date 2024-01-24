@@ -27,6 +27,13 @@ if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
 else:
     path = ''
 
+for filename in ['wordlist.txt', 'asked_userids.txt', 'allowed_userids.txt', 'log.txt', 'history.txt', 'dm_log.txt']:
+    filepath = os.path.join(path, filename)
+    if not os.path.isfile(f'{path}data/{filename}'):
+        # Создаем файл, если он не существует
+        with open(f'{path}data/{filename}', 'w', encoding='utf-8') as file:
+            file.write('1 1')
+
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
 with open(f'{path}data/wordlist.txt', 'r', encoding='utf-8') as fl:
