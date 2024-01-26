@@ -39,7 +39,7 @@ def firewall():
             pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
             if pendingupdates_count > 25:
                 if current_time - pendingupdates_lastsent > 3600:  # 3600 секунд = 1 час
-                    tools.send_message(647372660, f'⭕Я заметил что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
+                    tools.send_message(647372660, f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
                     pendingupdates_lastsent = current_time
     if 'edited_message' in r:
         r['message'] = r['edited_message']
