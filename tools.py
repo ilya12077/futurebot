@@ -76,33 +76,42 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
 
 
 def is_in_wordlist(msg: str) -> list:
+    msg = msg.lower()
     result = []
     filtered_result = []
-    alf = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
+    msg_only_ru = []
+    alf_ru = ['а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
+    alf_en = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    alf_nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     previous_char = None
     for char in msg:
-        if char != ' ':
-            if char != previous_char:
+        if char != ' ':  # удаляет пробелы
+            if char != previous_char:  # удаляет повторы букв
                 result.append(char)
-                if char in alf:
+                if char in alf_ru + alf_en + alf_nums:  # сообщение без повторов и пробелов, алфавит только ру+англ+цифр
                     filtered_result.append(char)
+                if char in alf_ru:  # сообщение без повторов и пробелов, алфавит только ру+англ+цифр
+                    msg_only_ru.append(char)
             previous_char = char
     msg = ''.join(result)
     filtered_msg = ''.join(filtered_result)
-    # print(filtered_msg)
-    # print(msg)
-    for word in wordlist:
-        if '&' in word:
-            word = word.split('&')
-            delete = True
-            for i in word:
-                if i not in msg.lower() and i not in filtered_msg.lower():
-                    delete = False
+    msg_only_ru = ''.join(msg_only_ru)
+    msgs = [msg, filtered_msg, msg_only_ru]
+    # print(msgs)
+    for iteration in wordlist:
+        if '&' in iteration:
+            banwords = iteration.split('&')  # ['12','34']
+            delete = False
+            for msg in msgs:  # поиск банворда в любых правила msgs
+                if all(banword in msg for banword in banwords):
+                    delete = True
+                    break  # Прерываем цикл, так как нашли совпадение
             if delete:
-                return [True, word]
+                return [True, iteration]
+
         else:
-            if word in msg.lower() or word in filtered_msg.lower():
-                return [True, word]
+            if any(iteration in msg for msg in msgs):
+                return [True, iteration]
     return [False, '']
 
 
