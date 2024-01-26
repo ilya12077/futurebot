@@ -260,7 +260,14 @@ def dm_handler(r):
                 json.dump(tools.ids, f, indent=2)
         case '/logs' if user_id in tools.ids:
             with open(f'{path}data/log.txt', 'r', encoding='utf-8') as f:
-                log = f.read()
+                log = []
+                for line in f:
+                    index = line.find('{')
+                    if index != -1:
+                        log.append(line[:index] + '\n')
+                    else:
+                        log.append(line)
+                log = ''.join(log)
                 if len(log) <= 4096:
                     send_body = {
                         'chat_id': user_id,
