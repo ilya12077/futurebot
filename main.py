@@ -1,10 +1,11 @@
 import json
 import os
-import tools
+import time
 import requests
 from flask import Flask, request
 from waitress import serve
 
+import tools
 
 app = Flask(__name__)
 
@@ -16,15 +17,29 @@ else:
 with open(f'{path}data/allowed_userids.txt', 'r', encoding='utf-8') as fl:
     allowed_userids = fl.read().split()
 
+pendingupdates_lastchecked = 0
+pendingupdates_lastsent = 0
+
 
 @app.route('/', methods=['GET', 'POST'])
 def firewall():
+    global pendingupdates_lastchecked, pendingupdates_lastsent
     if request.method == "GET":
         return 'I\'m working'
     r = request.get_json()
-    print(r)
     with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
         f.write(str(r) + '\n')
+    print(r)
+    current_time = int(time.time())
+    if current_time - pendingupdates_lastchecked > 60:
+        pendingupdates_lastchecked = current_time
+        response = requests.get(f'{tools.url}getWebhookInfo')
+        if response.status_code == 200:
+            pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
+            if pendingupdates_count > 50:
+                if current_time - pendingupdates_lastsent > 3600:  # 3600 секунд = 1 час
+                    tools.send_message(647372660, f'⭕Я заметил что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
+                    pendingupdates_lastsent = current_time
     if 'edited_message' in r:
         r['message'] = r['edited_message']
         del r['edited_message']
