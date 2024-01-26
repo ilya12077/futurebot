@@ -27,11 +27,15 @@ if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
 else:
     path = ''
 
-for filename in ['wordlist.txt', 'asked_userids.txt', 'allowed_userids.txt', 'log.txt', 'history.txt', 'dm_log.txt']:
+for filename in ['wordlist.txt', 'asked_userids.txt', 'log.txt', 'history.txt', 'dm_log.txt']:
     if not os.path.isfile(f'{path}data/{filename}'):
         # Создаем файл, если он не существует
         with open(f'{path}data/{filename}', 'w', encoding='utf-8') as fl:
             fl.write('1 1')
+if not os.path.isfile(f'{path}data/allowed_userids.txt'):
+    # Создаем файл, если он не существует
+    with open(f'{path}data/allowed_userids', 'w', encoding='utf-8') as fl:
+        fl.write('136817688 1087968824')  # когда от каналов и от группы
 
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
