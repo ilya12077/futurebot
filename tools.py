@@ -28,11 +28,10 @@ else:
     path = ''
 
 for filename in ['wordlist.txt', 'asked_userids.txt', 'allowed_userids.txt', 'log.txt', 'history.txt', 'dm_log.txt']:
-    filepath = os.path.join(path, filename)
     if not os.path.isfile(f'{path}data/{filename}'):
         # Создаем файл, если он не существует
-        with open(f'{path}data/{filename}', 'w', encoding='utf-8') as file:
-            file.write('1 1')
+        with open(f'{path}data/{filename}', 'w', encoding='utf-8') as fl:
+            fl.write('1 1')
 
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
@@ -74,24 +73,31 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
 
 def is_in_wordlist(msg: str) -> list:
     result = []
+    filtered_result = []
+    alf = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
     previous_char = None
     for char in msg:
         if char != ' ':
             if char != previous_char:
                 result.append(char)
+                if char in alf:
+                    filtered_result.append(char)
             previous_char = char
     msg = ''.join(result)
+    filtered_msg = ''.join(filtered_result)
+    # print(filtered_msg)
+    # print(msg)
     for word in wordlist:
         if '&' in word:
             word = word.split('&')
             delete = True
             for i in word:
-                if i not in msg.lower():
+                if i not in msg.lower() and i not in filtered_msg.lower():
                     delete = False
             if delete:
                 return [True, word]
         else:
-            if word in msg.lower():
+            if word in msg.lower() or word in filtered_msg.lower():
                 return [True, word]
     return [False, '']
 
