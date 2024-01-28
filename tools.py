@@ -80,6 +80,7 @@ def is_in_wordlist(msg: str) -> list:
     result = []
     filtered_result = []
     msg_only_ru = []
+    msg_only_en = []
     alf_ru = ['а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
     alf_en = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
     alf_nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -90,14 +91,17 @@ def is_in_wordlist(msg: str) -> list:
                 result.append(char)
                 if char in alf_ru + alf_en + alf_nums:  # сообщение без повторов и пробелов, алфавит только ру+англ+цифр
                     filtered_result.append(char)
-                if char in alf_ru:  # сообщение без повторов и пробелов, алфавит только ру+англ+цифр
+                if char in alf_ru:  # сообщение без повторов и пробелов, алфавит только ру
                     msg_only_ru.append(char)
+                if char in alf_en:  # сообщение без повторов и пробелов, алфавит только англ
+                    msg_only_en.append(char)
             previous_char = char
     msg = ''.join(result)
     filtered_msg = ''.join(filtered_result)
     msg_only_ru = ''.join(msg_only_ru)
-    msgs = [msg, filtered_msg, msg_only_ru]
-    # print(msgs)
+    msg_only_en = ''.join(msg_only_en)
+    msgs = [msg, filtered_msg, msg_only_ru, msg_only_en]
+    print(msgs)
     for iteration in wordlist:
         if '&' in iteration:
             banwords = iteration.split('&')  # ['12','34']
