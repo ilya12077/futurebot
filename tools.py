@@ -101,7 +101,7 @@ def is_in_wordlist(msg: str) -> list:
     msg_only_ru = ''.join(msg_only_ru)
     msg_only_en = ''.join(msg_only_en)
     msgs = [msg, filtered_msg, msg_only_ru, msg_only_en]
-    print(msgs)
+    # print(msgs)
     for iteration in wordlist:
         if '&' in iteration:
             banwords = iteration.split('&')  # ['12','34']

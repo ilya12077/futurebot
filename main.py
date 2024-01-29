@@ -141,8 +141,8 @@ def group_handler(r):
         if 'caption' in r['message']:
             msg = r['message']['caption']
         else:
-            msg = 'document or smt'
-        if tools.count_duplicate_messages(user_id, message=msg) > tools.max_duplicate_messages and (user_id not in tools.ids and true_user_id not in tools.ids):
+            msg = 'документ'
+        if tools.count_duplicate_messages(user_id, message=msg) > tools.max_duplicate_messages or tools.is_in_wordlist(msg)[0] and (user_id not in tools.ids and true_user_id not in tools.ids):
             tools.threading_delete_message(chat_id, message_id)
             tools.append_log(f'удалено сообщение по количеству от {first_name}({user_id}): {msg}')
             return
