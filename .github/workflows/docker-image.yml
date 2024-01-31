@@ -12,11 +12,6 @@ name: Publish Docker image
 on:
   release:
     types: [published]
-  push:
-    branches:
-      - test
-    tags:
-      - '0.0.0'
 
 jobs:
   push_to_registry:
