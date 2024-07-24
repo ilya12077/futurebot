@@ -28,8 +28,8 @@ def firewall():
     if request.method == "GET":
         return 'I\'m working'
     r = request.get_json()
-    with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
-        f.write(str(r) + '\n')
+    #with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
+    #    f.write(str(r) + '\n')
     print(r)
     current_time = int(time.time())
     if current_time - pendingupdates_lastchecked > 60:
