@@ -16,8 +16,8 @@ switch_entire_authorization = True  # T авторизация (отправка
 switch_message_deletion = True  # T любое удаление сообщение
 
 spam_timeout = 3 * 60  # в секундах
-authentication_message_timeout = 60
-max_duplicate_messages = 5
+authentication_message_timeout = 15
+max_duplicate_messages = 9999999
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
