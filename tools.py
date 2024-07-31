@@ -265,7 +265,7 @@ def get_admins() -> list:
     return result
 
 
-def restrictChatMember_msgSend(chat_id: int | str, user_id: int, until_date: int = int(time.time()) + 60 * 60 * 6):
+def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, until_date: int = int(time.time()) + 60 * 60 * 6):
     send_body = {
         'chat_id': chat_id,
         'user_id': user_id,
@@ -277,5 +277,20 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int, until_date: int
         print(url + 'restrictChatMember', send_body)
     else:
         r = requests.post(url + 'restrictChatMember', json=send_body)
-        print(r.json())
+        # print(r.json())
+        return r
+
+
+def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
+    send_body = {
+        'chat_id': chat_id,
+        'user_id': user_id,
+        'permissions': {"can_send_messages": True}
+    }
+    append_log(f'{user_id} разблокирован в отправке')
+    if switch_safe_mode:
+        print(url + 'restrictChatMember', send_body)
+    else:
+        r = requests.post(url + 'restrictChatMember', json=send_body)
+        # print(r.json())
         return r
