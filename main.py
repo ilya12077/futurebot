@@ -28,7 +28,7 @@ def firewall():
     if request.method == "GET":
         return 'I\'m working'
     r = request.get_json()
-    #with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
+    # with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
     #    f.write(str(r) + '\n')
     print(r)
     current_time = int(time.time())
@@ -52,9 +52,10 @@ def firewall():
                     tools.asked_usrids('remove', callback_data, '', None)
                     if callback_data not in allowed_userids:
                         allowed_userids.append(callback_data)
+                        tools.unRestrictChatMember_msgSend(tools.future_group_id, callback_data)
                         with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
                             f.write(' '.join(allowed_userids))
-                except ValueError:
+                except ValueError:  # ????
                     pass
                 tools.threading_delete_message(tools.future_group_id, r['callback_query']['message']['message_id'])
             requests.post(tools.url + f"answerCallbackQuery?callback_query_id={r['callback_query']['id']}")
@@ -123,10 +124,13 @@ def group_handler(r):
                 if untrust_user_id in tools.ids:
                     tools.upload_video(chat_id, 'sad_joke.mp4', reply_to_message_id=reply_to_message_id)
                 elif tools.switch_entire_authorization:
+                    tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
                     if 'username' in r['message']['reply_to_message']['from']:
                         username = '@' + r['message']['reply_to_message']['from']['username']
                     else:
                         username = r['message']['reply_to_message']['from']['first_name']
+                    tools.append_log(f'/notrusted {untrust_user_id} ({username})')
+                    tools.send_message(chat_id, f'done')
                     if not tools.asked_usrids('is', untrust_user_id, username, reply_to_message_id):
                         tools.asked_usrids('add', untrust_user_id, username, reply_to_message_id)
                     tools.threading_delete_message(chat_id, reply_to_message_id)
