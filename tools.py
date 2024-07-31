@@ -16,7 +16,7 @@ switch_entire_authorization = True  # T авторизация (отправка
 switch_message_deletion = True  # T любое удаление сообщение
 
 spam_timeout = 3 * 60  # в секундах
-authentication_message_timeout = 15
+authentication_message_timeout = 4
 max_duplicate_messages = 9999999
 
 load_dotenv(find_dotenv())
@@ -60,10 +60,11 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
     elif action == 'add' and switch_entire_authorization:
         if not switch_safe_mode:
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
-            wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
-            asked_userids.append(f'{user_id} {int(time.time())}')
-            with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
-                f.write('\n'.join(asked_userids))
+            if r is not None:
+                wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
+                asked_userids.append(f'{user_id} {int(time.time())}')
+                with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
+                    f.write('\n'.join(asked_userids))
     elif action == 'is':
         flag = False
         for i in asked_userids:
