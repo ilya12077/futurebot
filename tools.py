@@ -58,6 +58,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
         with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
             f.write('\n'.join(asked_userids))
     elif action == 'add' and switch_entire_authorization:
+        restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
         if not switch_safe_mode:
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
             if r is not None:
@@ -262,3 +263,18 @@ def get_admins() -> list:
             if _ids[userid]['is_admin']:
                 result.append(userid)
     return result
+
+
+def restrictChatMember_msgSend(chat_id: int | str, user_id: int):
+    send_body = {
+        'chat_id': chat_id,
+        'user_id': user_id,
+        'permissions': {"can_send_messages": False},
+        'until_date': int(time.time())+60*60*6
+    }
+    if switch_safe_mode or not switch_message_deletion:
+        print(url + 'restrictChatMember', send_body)
+    else:
+        r = requests.post(url + 'restrictChatMember', json=send_body)
+        print(r.content)
+        return r
