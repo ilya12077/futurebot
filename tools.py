@@ -16,7 +16,7 @@ switch_entire_authorization = True  # T авторизация (отправка
 switch_message_deletion = True  # T любое удаление сообщение
 
 spam_timeout = 3 * 60  # в секундах
-authentication_message_timeout = 60
+authentication_message_timeout = 60*5
 max_duplicate_messages = 9999999
 
 load_dotenv(find_dotenv())
@@ -62,7 +62,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
             restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
             if r is not None:
-                print(r.json())
+                #print(r.json())
                 wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
                 asked_userids.append(f'{user_id} {int(time.time())}')
                 with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
@@ -278,7 +278,7 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, until_dat
         print(url + 'restrictChatMember', send_body)
     else:
         r = requests.post(url + 'restrictChatMember', json=send_body)
-        print(r.json())
+        #print(r.json())
         return r
 
 
