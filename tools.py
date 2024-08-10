@@ -62,6 +62,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
             restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
             if r is not None:
+                print(r.json())
                 wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
                 asked_userids.append(f'{user_id} {int(time.time())}')
                 with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
