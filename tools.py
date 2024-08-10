@@ -278,7 +278,7 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, until_dat
         print(url + 'restrictChatMember', send_body)
     else:
         r = requests.post(url + 'restrictChatMember', json=send_body)
-        # print(r.json())
+        print(r.json())
         return r
 
 
