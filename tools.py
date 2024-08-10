@@ -34,7 +34,7 @@ for filename in ['wordlist.txt', 'asked_userids.txt', 'log.txt', 'history.txt', 
             fl.write('1 1')
 if not os.path.isfile(f'{path}data/allowed_userids.txt'):
     # Создаем файл, если он не существует
-    with open(f'{path}data/allowed_userids', 'w', encoding='utf-8') as fl:
+    with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as fl:
         fl.write('136817688 1087968824')  # когда от каналов и от группы
 
 with open(f'{path}names.json', 'r') as fl:
