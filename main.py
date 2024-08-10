@@ -130,7 +130,7 @@ def group_handler(r):
                     else:
                         username = r['message']['reply_to_message']['from']['first_name']
                     tools.append_log(f'/notrusted {untrust_user_id} ({username})')
-                    tools.send_message(chat_id, f'done')
+                    #tools.send_message(chat_id, f'done')
                     if not tools.asked_usrids('is', untrust_user_id, username, reply_to_message_id):
                         tools.asked_usrids('add', untrust_user_id, username, reply_to_message_id)
                     tools.threading_delete_message(chat_id, reply_to_message_id)
