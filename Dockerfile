@@ -24,7 +24,7 @@ RUN git clone git@github.com:ilya12077/futurebot.git
 RUN cp -a ./futurebot/. /etc/futurebot/
 RUN rm -r -f ./futurebot/
 
-RUN pip install python-dotenv Flask waitress requests
+RUN pip install python-dotenv Flask waitress requests pytz
 
 ENV AM_I_IN_A_DOCKER_CONTAINER Yes
 EXPOSE 8881/tcp
