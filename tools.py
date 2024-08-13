@@ -6,6 +6,7 @@ import os
 import threading
 import time
 
+import pytz
 import requests
 from dotenv import load_dotenv, find_dotenv
 from flask import Response
@@ -240,7 +241,7 @@ def upload_video(chat_id, file, caption='', reply_to_message_id=''):
 def append_log(msg):
     try:
         with open(f'{path}data/log.txt', 'a', encoding='utf-8') as f:
-            f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
+            f.write(f'[{datetime.datetime.now(pytz.timezone('Europe/Moscow')).strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
 
     except Exception as e:
         with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
