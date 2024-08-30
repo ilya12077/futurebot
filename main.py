@@ -117,6 +117,7 @@ def group_handler(r):
         if tools.count_duplicate_messages(user_id, message=msg) > tools.max_duplicate_messages or tools.is_in_wordlist(msg)[0] and (user_id not in tools.ids and true_user_id not in tools.ids):
             tools.threading_delete_message(chat_id, message_id)
             tools.append_log(f'удалено сообщение по фильтру({tools.is_in_wordlist(msg)[1]})/количеству от {first_name}({user_id}): {msg}')
+            tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 5)
             return
         else:
             if 'reply_to_message' in r['message'] and msg == '/notrust' and user_id in tools.ids:
@@ -151,6 +152,7 @@ def group_handler(r):
         if tools.count_duplicate_messages(user_id, message=msg) > tools.max_duplicate_messages or tools.is_in_wordlist(msg)[0] and (user_id not in tools.ids and true_user_id not in tools.ids):
             tools.threading_delete_message(chat_id, message_id)
             tools.append_log(f'удалено сообщение по количеству от {first_name}({user_id}): {msg}')
+            tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 30)
             return
 
 
