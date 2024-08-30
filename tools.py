@@ -18,7 +18,7 @@ switch_message_deletion = True  # T любое удаление сообщени
 
 spam_timeout = 3 * 60  # в секундах
 authentication_message_timeout = 60 * 5
-max_duplicate_messages = 9999999
+max_duplicate_messages = 3
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
