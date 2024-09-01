@@ -92,7 +92,7 @@ def is_in_wordlist(msg: str) -> list:
     for char in msg:
         if char != ' ':  # удаляет пробелы
             if char != previous_char:  # удаляет повторы букв
-                result.append(char)
+                result.(char)
                 if char in alf_ru + alf_en + alf_nums:  # сообщение без повторов и пробелов, алфавит только ру+англ+цифр
                     filtered_result.append(char)
                 if char in alf_ru:  # сообщение без повторов и пробелов, алфавит только ру
@@ -242,7 +242,7 @@ def append_log(msg):
     try:
         with open(f'{path}data/log.txt', 'a', encoding='utf-8') as f:
             f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
-
+        print(msg)
     except Exception as e:
         with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
             f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
