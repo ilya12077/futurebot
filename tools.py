@@ -92,7 +92,7 @@ def is_in_wordlist(msg: str) -> list:
     for char in msg:
         if char != ' ':  # удаляет пробелы
             if char != previous_char:  # удаляет повторы букв
-                result.(char)
+                result.append(char)
                 if char in alf_ru + alf_en + alf_nums:  # сообщение без повторов и пробелов, алфавит только ру+англ+цифр
                     filtered_result.append(char)
                 if char in alf_ru:  # сообщение без повторов и пробелов, алфавит только ру
