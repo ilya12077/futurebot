@@ -144,6 +144,25 @@ def group_handler(r):
                                 f.write(' '.join(allowed_userids))
                     except ValueError:
                         pass
+            elif 'reply_to_message' in r['message'] and '/mute' in msg and user_id in tools.ids:
+                tools.threading_delete_message(chat_id, r['message']['message_id'])
+                reply_to_message_id = r['message']['reply_to_message']['message_id']
+                orig_sender_user_id = str(r['message']['reply_to_message']['from']['id'])
+                if orig_sender_user_id in tools.ids:
+                    tools.upload_video(chat_id, 'sad_joke.mp4', reply_to_message_id=reply_to_message_id)
+                elif tools.switch_entire_authorization:
+                    try:
+                        expression = eval(msg[6:])
+                        tools.restrictChatMember_msgSend(chat_id, orig_sender_user_id, duration=expression)
+                        if 'username' in r['message']['reply_to_message']['from']:
+                            username = '@' + r['message']['reply_to_message']['from']['username']
+                        else:
+                            username = r['message']['reply_to_message']['from']['first_name']
+                        tools.append_log(f'{msg} {orig_sender_user_id} ({username})')
+                        # tools.send_message(chat_id, f'done')
+                    except SyntaxError | NameError as e:
+                        print(e)
+                        pass
     elif 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
