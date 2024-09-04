@@ -74,6 +74,8 @@ def group_handler(r):
         true_user_id = str(r['message']['sender_chat']['id'])
     else:
         true_user_id = None
+    if 'new_chat_members' in r['message']:
+        return
     user_id = str(r['message']['from']['id'])
     first_name = r['message']['from']['first_name']
     if 'username' in r['message']['from']:
