@@ -144,7 +144,7 @@ def request_delete_message(chat_id, message_id):
         requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
 
 
-def count_duplicate_messages(user_id: str, message: str = None, file_unique_id: str = None) -> int:
+def count_duplicate_messages(user_id: str, message: str = None) -> int:
     count = 0
     with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
         for i in f.readlines():
@@ -153,9 +153,11 @@ def count_duplicate_messages(user_id: str, message: str = None, file_unique_id: 
                 if 'text' in r['message']:
                     if message == r['message']['text']:
                         count += 1
-                elif 'sticker' in r['message']:
-                    if file_unique_id == r['message']['sticker']['thumbnail']['file_unique_id']:
-                        count += 1
+                else:
+                    count += 1
+                # elif 'sticker' in r['message']:
+                #     if file_unique_id == r['message']['sticker']['thumbnail']['file_unique_id']:
+                #         count += 1
     return count
 
 

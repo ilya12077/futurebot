@@ -108,8 +108,7 @@ def group_handler(r):
             tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 5)
             return
     elif 'sticker' in r['message']:
-        file_unique_id = r['message']['sticker']['thumbnail']['file_unique_id']
-        if tools.count_duplicate_messages(user_id, file_unique_id=file_unique_id) > tools.max_duplicate_messages and (user_id not in tools.ids and true_user_id not in tools.ids):
+        if tools.count_duplicate_messages(user_id) > tools.max_duplicate_messages and (user_id not in tools.ids and true_user_id not in tools.ids):
             tools.threading_delete_message(chat_id, message_id)
             tools.append_log(f'удалено сообщение по количеству от {first_name}({user_id}): *sticker*')
             tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 30)
@@ -169,8 +168,8 @@ def group_handler(r):
         if 'caption' in r['message']:
             msg = r['message']['caption']
         else:
-            msg = 'документ'
-        if tools.count_duplicate_messages(user_id, message=msg) > tools.max_duplicate_messages or tools.is_in_wordlist(msg)[0] and (user_id not in tools.ids and true_user_id not in tools.ids):
+            msg = ''
+        if tools.count_duplicate_messages(user_id) > tools.max_duplicate_messages or tools.is_in_wordlist(msg)[0] and (user_id not in tools.ids and true_user_id not in tools.ids):
             tools.threading_delete_message(chat_id, message_id)
             tools.append_log(f'удалено сообщение по количеству от {first_name}({user_id}): {msg}')
             tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 30)
