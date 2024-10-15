@@ -100,7 +100,7 @@ def group_handler(r):
                     f.write(' '.join(allowed_userids))
         except ValueError:
             pass
-    if 'forward_origin' in r['message'] and tools.switch_message_deletion and tools.switch_forward_deletionand(user_id not in tools.ids and true_user_id not in tools.ids):
+    if 'forward_origin' in r['message'] and tools.switch_message_deletion and tools.switch_forward_deletion and (user_id not in tools.ids and true_user_id not in tools.ids):
         tools.threading_delete_message(chat_id, message_id)
         tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})')
     if 'reply_markup' in r['message']:
