@@ -15,6 +15,7 @@ switch_safe_mode = False  # F ни малейшего запроса в стор
 switch_authorize_all = False  # F добавлять всех сразу в allowed_ids
 switch_entire_authorization = True  # T авторизация (отправка соо, удаление)
 switch_message_deletion = True  # T любое удаление сообщение
+switch_forward_deletion = True  # T пересылка соо в группу
 
 spam_timeout = 3 * 60  # в секундах
 authentication_message_timeout = 60 * 5
