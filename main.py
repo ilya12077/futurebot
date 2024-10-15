@@ -100,10 +100,9 @@ def group_handler(r):
                     f.write(' '.join(allowed_userids))
         except ValueError:
             pass
-    if 'forward_origin' in r['message'] and tools.switch_message_deletion and tools.switch_forward_deletion:
+    if 'forward_origin' in r['message'] and tools.switch_message_deletion and tools.switch_forward_deletionand(user_id not in tools.ids and true_user_id not in tools.ids):
         tools.threading_delete_message(chat_id, message_id)
         tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})')
-        tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 10)
     if 'reply_markup' in r['message']:
         msg = r['message']['reply_markup']['inline_keyboard'][0][0]['text']
         if tools.count_duplicate_messages(user_id, message=msg) > tools.max_duplicate_messages or tools.is_in_wordlist(msg)[0] and (user_id not in tools.ids and true_user_id not in tools.ids):
