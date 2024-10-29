@@ -19,7 +19,7 @@ switch_forward_deletion = True  # T пересылка соо в группу
 
 spam_timeout = 3 * 60  # в секундах
 authentication_message_timeout = 60 * 5
-max_duplicate_messages = 3
+max_duplicate_messages = 5
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
