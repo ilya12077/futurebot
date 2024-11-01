@@ -38,5 +38,10 @@
     "waiting": {
       "is_waiting": false
     }
+  },
+  "777000": {
+    "waiting": {
+      "is_waiting": false
+    }
   }
 }
