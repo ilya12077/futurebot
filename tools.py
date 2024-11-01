@@ -19,7 +19,7 @@ switch_forward_deletion = True  # T пересылка соо в группу
 
 spam_timeout = 2 * 60  # в секундах
 authentication_message_timeout = 60 * 5
-max_duplicate_messages = 3
+max_duplicate_messages = 4
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
@@ -144,9 +144,9 @@ def request_delete_message(chat_id, message_id):
         requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
 
 
-def count_duplicate_messages(user_id: str) -> int:
+def count_duplicate_messages(user_id: str) -> tuple:
     with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
-        count = (0, '')  # счет, прошлое значение
+        count = (1, 'default')  # счет, прошлое значение | начинается с 1, тк первое сообщение уже одно
         for i in f.readlines():
             if i.split()[1] == user_id:
                 try:
@@ -159,13 +159,18 @@ def count_duplicate_messages(user_id: str) -> int:
                         if count[1] == text:
                             count = (count[0] + 1, text)
                         else:
-                            count = (0, text)
+                            count = (1, text)
                     else:
-                        count = (count[0] + 1, '')
+                        if count[1] == '<i>вложение</i>':
+                            count = (count[0] + 1, '<i>вложение</i>')
+                        else:
+                            count = (1, '<i>вложение</i>')
                 except ValueError:  # ast syntax 153
                     pass
     print(count)
     return count[0]
+    # print(count)
+    return count
 
 
 def clear_history():

@@ -119,17 +119,18 @@ def group_handler(r):
             msg = r['message']['text']
         else:
             msg = ''
-        duplicate_count = tools.count_duplicate_messages(user_id)
+        duplicate_count = tools.count_duplicate_messages(user_id)  # (int count, str type)
         wordlist_result = tools.is_in_wordlist(msg)
-        if (duplicate_count >= tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
+        if (duplicate_count[0] >= tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
-                reason = f'по фильтру({wordlist_result[1]})'
-                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 8)
+
+                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
+                reason = f'по фильтру(<i>{wordlist_result[1]}</i>)'
             else:
-                reason = f'по количеству {duplicate_count}'
-            tools.append_log(f'удалено сообщение {reason} от {first_name}({user_id}): {msg}')
-            tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
+                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 20)
+                reason = f'{duplicate_count[0]}-е подряд'
+            tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}')
             return
         # else:
         #     if 'reply_to_message' in r['message'] and msg == '/notrust' and user_id in tools.ids:
@@ -327,12 +328,14 @@ def dm_handler(r):
                     send_body = {
                         'chat_id': user_id,
                         'text': log,
+                        'parse_mode': 'HTML',
                         'reply_markup': tools.keyboards(user_id)
                     }
                 else:
                     send_body = {
                         'chat_id': user_id,
                         'text': log[-4096:],
+                        'parse_mode': 'HTML',
                         'reply_markup': tools.keyboards(user_id)
                     }
                 requests.post(tools.url + 'sendMessage', json=send_body)
