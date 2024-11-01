@@ -145,20 +145,24 @@ def request_delete_message(chat_id, message_id):
 
 
 def count_duplicate_messages(user_id: str, message: str = None) -> int:
-    count = 0
     with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
+        count = (0, '')  # счет, прошлое значение
         for i in f.readlines():
             if i.split()[1] == user_id:
-                r = ast.literal_eval(i[i.find('{'):])
-                if 'text' in r['message']:
-                    if message == r['message']['text']:
-                        count += 1
-                else:
-                    count += 1
-                # elif 'sticker' in r['message']:
-                #     if file_unique_id == r['message']['sticker']['thumbnail']['file_unique_id']:
-                #         count += 1
-    return count
+                try:
+                    r = ast.literal_eval(i[i.find('{'):])
+                    if 'text' in r['message'] or 'caption' in r['message']:
+                        if 'caption' in r['message']:
+                            text = r['message']['caption']
+                        else:
+                            text = r['message']
+                        if count[1] == text:
+                            count = (count[0] + 1, text)
+                    else:
+                        count = (count[0] + 1, '')
+                except ValueError:  # ast syntax 153
+                    pass
+    return count[0]
 
 
 def clear_history():
@@ -243,7 +247,7 @@ def upload_video(chat_id, file, caption='', reply_to_message_id=''):
 def append_log(msg):
     try:
         with open(f'{path}data/log.txt', 'a', encoding='utf-8') as f:
-            f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%Y-%m-%d %H:%M:%S")}]: {msg}' + '\n')
+            f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%H:%M:%S")}]: {msg}' + '\n')
         print(msg)
     except Exception as e:
         with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:
