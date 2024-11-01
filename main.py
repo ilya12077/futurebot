@@ -123,7 +123,7 @@ def group_handler(r):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
 
-                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
+                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 8)
                 reason = f'по фильтру(<i>{wordlist_result[1]}</i>)'
             else:
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 20)
