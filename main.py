@@ -106,12 +106,6 @@ def group_handler(r):
             tools.append_log(f'удалено соо с inline keyboard от {first_name}({user_id})')
         else:
             tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})')
-    # elif 'sticker' in r['message']:
-    #     if tools.count_duplicate_messages(user_id) > tools.max_duplicate_messages and (user_id not in tools.ids and true_user_id not in tools.ids):
-    #         tools.threading_delete_message(chat_id, message_id)
-    #         tools.append_log(f'спам стикеров от {first_name}({user_id})')
-    #         tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
-    #         return
     elif 'text' in r['message'] or 'sticker' in r['message'] or 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message'] or 'video_note' in r['message'] or 'voice' in r['message'] or 'audio' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
@@ -132,50 +126,6 @@ def group_handler(r):
                 reason = f'{duplicate_count[0]}-е подряд'
             tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}')
             return
-        # else:
-        #     if 'reply_to_message' in r['message'] and msg == '/notrust' and user_id in tools.ids:
-        #         tools.threading_delete_message(chat_id, r['message']['message_id'])
-        #         reply_to_message_id = r['message']['reply_to_message']['message_id']
-        #         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
-        #         if untrust_user_id in tools.ids:
-        #             tools.upload_video(chat_id, 'sad_joke.mp4', reply_to_message_id=reply_to_message_id)
-        #         elif tools.switch_entire_authorization:
-        #             tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
-        #             if 'username' in r['message']['reply_to_message']['from']:
-        #                 username = '@' + r['message']['reply_to_message']['from']['username']
-        #             else:
-        #                 username = r['message']['reply_to_message']['from']['first_name']
-        #             tools.append_log(f'/notrusted {untrust_user_id} ({username})')
-        #             # tools.send_message(chat_id, f'done')
-        #             if not tools.asked_usrids('is', untrust_user_id, username, reply_to_message_id):
-        #                 tools.asked_usrids('add', untrust_user_id, username, reply_to_message_id)
-        #             tools.threading_delete_message(chat_id, reply_to_message_id)
-        #             try:
-        #                 if untrust_user_id in allowed_userids:
-        #                     allowed_userids.remove(untrust_user_id)
-        #                     with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
-        #                         f.write(' '.join(allowed_userids))
-        #             except ValueError:
-        #                 pass
-        #     elif 'reply_to_message' in r['message'] and '/mute' in msg and user_id in tools.ids:
-        #         tools.threading_delete_message(chat_id, r['message']['message_id'])
-        #         reply_to_message_id = r['message']['reply_to_message']['message_id']
-        #         orig_sender_user_id = str(r['message']['reply_to_message']['from']['id'])
-        #         if orig_sender_user_id in tools.ids:
-        #             tools.upload_video(chat_id, 'sad_joke.mp4', reply_to_message_id=reply_to_message_id)
-        #         elif tools.switch_entire_authorization:
-        #             try:
-        #                 expression = eval(msg[6:])
-        #                 tools.restrictChatMember_msgSend(chat_id, orig_sender_user_id, duration=expression)
-        #                 if 'username' in r['message']['reply_to_message']['from']:
-        #                     username = '@' + r['message']['reply_to_message']['from']['username']
-        #                 else:
-        #                     username = r['message']['reply_to_message']['from']['first_name']
-        #                 tools.append_log(f'{msg} {orig_sender_user_id} ({username})')
-        #                 # tools.send_message(chat_id, f'done')
-        #             except SyntaxError | NameError as e:
-        #                 print(e)
-        #                 pass
 
 
 def waiting_user_handler(r):
