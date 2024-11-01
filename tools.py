@@ -155,13 +155,16 @@ def count_duplicate_messages(user_id: str) -> int:
                         if 'caption' in r['message']:
                             text = r['message']['caption']
                         else:
-                            text = r['message']
+                            text = r['message']['text']
                         if count[1] == text:
                             count = (count[0] + 1, text)
+                        else:
+                            count = (0, text)
                     else:
                         count = (count[0] + 1, '')
                 except ValueError:  # ast syntax 153
                     pass
+    print(count)
     return count[0]
 
 

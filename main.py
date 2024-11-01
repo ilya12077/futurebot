@@ -129,6 +129,7 @@ def group_handler(r):
             else:
                 reason = f'по количеству {duplicate_count}'
             tools.append_log(f'удалено сообщение {reason} от {first_name}({user_id}): {msg}')
+            tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
             return
         # else:
         #     if 'reply_to_message' in r['message'] and msg == '/notrust' and user_id in tools.ids:
