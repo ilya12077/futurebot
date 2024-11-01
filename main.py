@@ -61,9 +61,9 @@ def firewall():
     if 'edited_message' in r:
         r['message'] = r['edited_message']
         del r['edited_message']
-    ping = round(current_time - int(r['message']['date']), 2)
-    print(f'ping: {ping}s. ')
     if 'message' in r:
+        ping = round(current_time - int(r['message']['date']), 2)
+        print(f'ping: {ping}s. ')
         chat_id = int(r['message']['chat']['id'])
         if chat_id == tools.future_group_id:
             group_handler(r)
