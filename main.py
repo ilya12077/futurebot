@@ -99,6 +99,7 @@ def group_handler(r):
                     f.write(' '.join(allowed_userids))
         except ValueError:
             pass
+    tools.append_history(user_id, r)
     if ('forward_origin' in r['message'] or 'reply_markup' in r['message']) and tools.switch_message_deletion and tools.switch_forward_deletion and (user_id not in tools.ids and true_user_id not in tools.ids):
         tools.threading_delete_message(chat_id, message_id)
         if 'reply_markup' in r['message']:
@@ -119,8 +120,8 @@ def group_handler(r):
         else:
             msg = None
         duplicate_count = tools.count_duplicate_messages(user_id)
-        wordlist_result = tools.is_in_wordlist(msg)[0]
-        if (duplicate_count >= tools.max_duplicate_messages or wordlist_result) and (user_id not in tools.admin_ids):
+        wordlist_result = tools.is_in_wordlist(msg)
+        if (duplicate_count >= tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
                 reason = f'по фильтру({wordlist_result[1]})'
@@ -412,5 +413,5 @@ if __name__ == '__main__':
     if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
         serve(app, host='0.0.0.0', port=8881, url_scheme='http')
     else:
-        app.run(host='192.168.1.10', port=8885)
-        # app.run(host='192.168.1.21', port=8881)
+        # app.run(host='192.168.1.10', port=8885)
+        app.run(host='192.168.1.27', port=8887)

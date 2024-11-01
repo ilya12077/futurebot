@@ -19,7 +19,7 @@ switch_forward_deletion = True  # T пересылка соо в группу
 
 spam_timeout = 2 * 60  # в секундах
 authentication_message_timeout = 60 * 5
-max_duplicate_messages = 5
+max_duplicate_messages = 3
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
@@ -144,7 +144,7 @@ def request_delete_message(chat_id, message_id):
         requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
 
 
-def count_duplicate_messages(user_id: str, message: str = None) -> int:
+def count_duplicate_messages(user_id: str) -> int:
     with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
         count = (0, '')  # счет, прошлое значение
         for i in f.readlines():
@@ -268,8 +268,7 @@ def get_admins() -> list:
         _ids = json.load(f)
         result = []
         for userid in _ids:
-            if _ids[userid]['is_admin']:
-                result.append(userid)
+            result.append(userid)
     return result
 
 
