@@ -291,7 +291,7 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
         'use_independent_chat_permissions': False,
         'until_date': until_date
     }
-    append_log(f'{user_id} ограничен в отправке до {until_date}')
+    # append_log(f'{user_id} ограничен в отправке до {until_date}')
     if switch_safe_mode or not switch_message_deletion:
         print(url + 'restrictChatMember', send_body)
     else:
@@ -313,7 +313,7 @@ def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
                         "can_invite_users": True,
                         "can_add_web_page_previews": True},
     }
-    append_log(f'{user_id} разблокирован в отправке')
+    # append_log(f'{user_id} разблокирован в отправке')
     if switch_safe_mode:
         print(url + 'restrictChatMember', send_body)
     else:

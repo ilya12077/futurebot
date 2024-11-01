@@ -88,7 +88,7 @@ def group_handler(r):
         if not tools.asked_usrids('is', user_id, username, message_id):
             tools.asked_usrids('add', user_id, username, message_id)
         tools.threading_delete_message(chat_id, message_id)
-        tools.append_log(f'удалено до авторизации пользователя: {r}')
+        tools.append_log(f'удалено до авторизации: {r}')
         return
     elif tools.switch_authorize_all and tools.switch_entire_authorization:
         try:
@@ -106,19 +106,19 @@ def group_handler(r):
             tools.append_log(f'удалено соо с inline keyboard от {first_name}({user_id})')
         else:
             tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})')
-    elif 'sticker' in r['message']:
-        if tools.count_duplicate_messages(user_id) > tools.max_duplicate_messages and (user_id not in tools.ids and true_user_id not in tools.ids):
-            tools.threading_delete_message(chat_id, message_id)
-            tools.append_log(f'спам стикеров от {first_name}({user_id})')
-            tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
-            return
-    elif 'text' in r['message'] or 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message'] or 'video_note' in r['message'] or 'voice' in r['message'] or 'audio' in r['message']:
+    # elif 'sticker' in r['message']:
+    #     if tools.count_duplicate_messages(user_id) > tools.max_duplicate_messages and (user_id not in tools.ids and true_user_id not in tools.ids):
+    #         tools.threading_delete_message(chat_id, message_id)
+    #         tools.append_log(f'спам стикеров от {first_name}({user_id})')
+    #         tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 15)
+    #         return
+    elif 'text' in r['message'] or 'sticker' in r['message'] or 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message'] or 'video_note' in r['message'] or 'voice' in r['message'] or 'audio' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
         elif 'text' in r['message']:
             msg = r['message']['text']
         else:
-            msg = None
+            msg = ''
         duplicate_count = tools.count_duplicate_messages(user_id)
         wordlist_result = tools.is_in_wordlist(msg)
         if (duplicate_count >= tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
