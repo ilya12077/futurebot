@@ -251,10 +251,13 @@ def upload_video(chat_id, file, caption='', reply_to_message_id=''):
         requests.post(f'{url}sendVideo?chat_id={chat_id}&caption={caption}&reply_to_message_id={reply_to_message_id}', files=files)
 
 
-def append_log(msg):
+def append_log(msg, ping: int = None):
     try:
         with open(f'{path}data/log.txt', 'a', encoding='utf-8') as f:
-            f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%H:%M:%S")}]: {msg}' + '\n')
+            if not ping:
+                f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%H:%M:%S")}]: {msg}' + '\n')
+            else:
+                f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%H:%M:%S")}]<b>({ping}s.)</b> : {msg}' + '\n')
         print(msg)
     except Exception as e:
         with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:

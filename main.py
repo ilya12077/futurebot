@@ -20,18 +20,21 @@ with open(f'{path}data/allowed_userids.txt', 'r', encoding='utf-8') as fl:
 
 pendingupdates_lastchecked = 0
 pendingupdates_lastsent = 0
+ping = 0
 
 
 @app.route('/', methods=['GET', 'POST'])
 def firewall():
-    global pendingupdates_lastchecked, pendingupdates_lastsent
+    global pendingupdates_lastchecked, pendingupdates_lastsent, ping
     if request.method == "GET":
         return 'I\'m working'
     r = request.get_json()
     with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
         f.write(str(r) + '\n')
     print(r)
-    current_time = int(time.time())
+    current_time = time.time()
+    ping = round(current_time - int(r['message']['date']), 2)
+    print(f'ping: {ping}s. ')
     if current_time - pendingupdates_lastchecked > 60:
         pendingupdates_lastchecked = current_time
         response = requests.get(f'{tools.url}getWebhookInfo')
@@ -88,7 +91,7 @@ def group_handler(r):
         if not tools.asked_usrids('is', user_id, username, message_id):
             tools.asked_usrids('add', user_id, username, message_id)
         tools.threading_delete_message(chat_id, message_id)
-        tools.append_log(f'удалено до авторизации: {r}')
+        tools.append_log(f'удалено до авторизации: {r}', ping)
         return
     elif tools.switch_authorize_all and tools.switch_entire_authorization:
         try:
@@ -103,9 +106,9 @@ def group_handler(r):
     if ('forward_origin' in r['message'] or 'reply_markup' in r['message']) and tools.switch_message_deletion and tools.switch_forward_deletion and (user_id not in tools.ids and true_user_id not in tools.ids):
         tools.threading_delete_message(chat_id, message_id)
         if 'reply_markup' in r['message']:
-            tools.append_log(f'удалено соо с inline keyboard от {first_name}({user_id})')
+            tools.append_log(f'удалено соо с inline keyboard от {first_name}({user_id})', ping)
         else:
-            tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})')
+            tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})', ping)
     elif 'text' in r['message'] or 'sticker' in r['message'] or 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message'] or 'video_note' in r['message'] or 'voice' in r['message'] or 'audio' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
@@ -124,7 +127,7 @@ def group_handler(r):
             else:
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 20)
                 reason = f'{duplicate_count[0]}-е подряд'
-            tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}')
+            tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}', ping)
             return
 
 
