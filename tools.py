@@ -167,8 +167,7 @@ def count_duplicate_messages(user_id: str) -> tuple:
                             count = (1, '<i>вложение</i>')
                 except ValueError:  # ast syntax 153
                     pass
-    print(count)
-    return count[0]
+                # print(count)
     # print(count)
     return count
 
