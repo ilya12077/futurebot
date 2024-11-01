@@ -32,12 +32,7 @@ def firewall():
     with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
         f.write(str(r) + '\n')
     print(r)
-    if 'edited_message' in r:
-        r['message'] = r['edited_message']
-        del r['edited_message']
     current_time = time.time()
-    ping = round(current_time - int(r['message']['date']), 2)
-    print(f'ping: {ping}s. ')
     if current_time - pendingupdates_lastchecked > 60:
         pendingupdates_lastchecked = current_time
         response = requests.get(f'{tools.url}getWebhookInfo')
@@ -62,7 +57,13 @@ def firewall():
                     pass
                 tools.threading_delete_message(tools.future_group_id, r['callback_query']['message']['message_id'])
             requests.post(tools.url + f"answerCallbackQuery?callback_query_id={r['callback_query']['id']}")
-    elif 'message' in r:
+        return 'OK'
+    if 'edited_message' in r:
+        r['message'] = r['edited_message']
+        del r['edited_message']
+    ping = round(current_time - int(r['message']['date']), 2)
+    print(f'ping: {ping}s. ')
+    if 'message' in r:
         chat_id = int(r['message']['chat']['id'])
         if chat_id == tools.future_group_id:
             group_handler(r)
