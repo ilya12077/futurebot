@@ -88,7 +88,7 @@ def group_handler(r):
         username = first_name
     message_id = r['message']['message_id']
     chat_id = int(r['message']['chat']['id'])
-    if user_id not in allowed_userids and tools.switch_entire_authorization and not tools.switch_authorize_all:
+    if user_id not in allowed_userids and tools.switch_entire_authorization and not tools.switch_authorize_all and (user_id not in tools.ids and true_user_id not in tools.ids):
         if not tools.asked_usrids('is', user_id, username, message_id):
             tools.asked_usrids('add', user_id, username, message_id)
         tools.threading_delete_message(chat_id, message_id)
@@ -110,7 +110,7 @@ def group_handler(r):
             tools.append_log(f'удалено соо с inline keyboard от {first_name}({user_id})', ping)
         else:
             tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})', ping)
-    elif 'text' in r['message'] or 'sticker' in r['message'] or 'caption' in r['message'] or 'video' or 'animation' in r['message']:
+    elif 'text' in r['message'] or 'sticker' in r['message'] or 'caption' in r['message'] or 'animation' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
         elif 'text' in r['message']:
