@@ -110,7 +110,7 @@ def group_handler(r):
             tools.append_log(f'удалено соо с inline keyboard от {first_name}({user_id})', ping)
         else:
             tools.append_log(f'удалено пересланное сообщение от {first_name}({user_id})', ping)
-    elif 'text' in r['message'] or 'sticker' in r['message'] or 'photo' in r['message'] or 'video' in r['message'] or 'document' in r['message'] or 'animation' in r['message'] or 'video_note' in r['message'] or 'voice' in r['message'] or 'audio' in r['message']:
+    elif 'text' in r['message'] or 'sticker' in r['message'] or 'caption' in r['message'] or 'video' or 'animation' in r['message']:
         if 'caption' in r['message']:
             msg = r['message']['caption']
         elif 'text' in r['message']:
@@ -122,7 +122,6 @@ def group_handler(r):
         if (duplicate_count[0] >= tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
-
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 8)
                 reason = f'по фильтру(<i>{wordlist_result[1]}</i>)'
             else:
