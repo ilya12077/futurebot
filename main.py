@@ -147,7 +147,7 @@ def waiting_user_handler(r):
             msg = msg.lower()
             was_added = False
             for wrd in msg.split():
-                if tools.is_in_wordlist(wrd):
+                if not tools.is_in_wordlist(wrd)[0]:
                     tools.wordlist.append(wrd)
                     was_added = True
                 else:
@@ -166,9 +166,12 @@ def waiting_user_handler(r):
             msg = msg.lower()
             was_deleted = False
             for wrd in msg.split():
-                if tools.is_in_wordlist(wrd):
-                    tools.wordlist.remove(wrd)
-                    was_deleted = True
+                if not tools.is_in_wordlist(wrd)[0]:
+                    try:
+                        tools.wordlist.remove(wrd)
+                        was_deleted = False
+                    except ValueError:
+                        pass
                 else:
                     tools.send_message(user_id, f'<i>{wrd}</i> не был в списке')
             if was_deleted:
