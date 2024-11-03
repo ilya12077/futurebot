@@ -151,7 +151,7 @@ def waiting_user_handler(r):
                     tools.wordlist.append(wrd)
                     was_added = True
                 else:
-                    tools.send_message(user_id, f'<i>{msg}</i> уже был в списке')
+                    tools.send_message(user_id, f'<i>{wrd}</i> уже был в списке')
             if was_added:
                 with open(f'{path}data/wordlist.txt', 'w', encoding='utf-8') as f:
                     f.write(' '.join(tools.wordlist))
