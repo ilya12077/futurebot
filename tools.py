@@ -107,19 +107,19 @@ def is_in_wordlist(msg: str) -> list:
     msg_only_en = ''.join(msg_only_en)
     msgs = [msg, filtered_msg, msg_only_ru, msg_only_en]
     # print(msgs)
-    for iteration in wordlist:
-        if '&' in iteration:
-            banwords = iteration.split('&')
+    for banword in wordlist:
+        if '&' in banword:
+            banwords = banword.split('&')
             delete = False
             for msg in msgs:  # поиск банворда в любых правила msgs
-                if all(banword in msg for banword in banwords):  # all помушто тут &
+                if all(bw in msg for bw in banwords):  # all помушто тут &
                     delete = True
                     break  # Прерываем цикл, так как нашли совпадение
             if delete:
-                return [True, iteration]
+                return [True, banword]
         else:
-            if any(iteration in msg for msg in msgs):
-                return [True, iteration]
+            if any(banword in msg for msg in msgs):
+                return [True, banword]
     return [False, '']
 
 

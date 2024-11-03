@@ -69,6 +69,8 @@ def firewall():
             group_handler(r)
         elif r['message']['chat']['type'] == 'private':
             dm_handler(r)
+        elif not os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
+            raise ValueError
     return 'OK'
 
 
@@ -169,7 +171,7 @@ def waiting_user_handler(r):
                 if tools.is_in_wordlist(wrd)[0]:
                     try:
                         tools.wordlist.remove(wrd)
-                        was_deleted = False
+                        was_deleted = True
                     except ValueError:
                         pass
                 else:
