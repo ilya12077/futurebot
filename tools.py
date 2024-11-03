@@ -109,7 +109,7 @@ def is_in_wordlist(msg: str) -> list:
     # print(msgs)
     for iteration in wordlist:
         if '&' in iteration:
-            banwords = iteration.split('&')  # ['12','34']
+            banwords = iteration.split('&')
             delete = False
             for msg in msgs:  # поиск банворда в любых правила msgs
                 if all(banword in msg for banword in banwords):  # all помушто тут &
