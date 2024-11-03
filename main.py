@@ -147,11 +147,11 @@ def waiting_user_handler(r):
             msg = msg.lower()
             was_added = False
             for wrd in msg.split():
-                if wrd not in tools.wordlist:
+                if tools.is_in_wordlist(wrd):
                     tools.wordlist.append(wrd)
                     was_added = True
                 else:
-                    tools.send_message(user_id, f'<i>{wrd}</i> уже в списке')
+                    tools.send_message(user_id, f'<i>{msg}</i> уже был в списке')
             if was_added:
                 with open(f'{path}data/wordlist.txt', 'w', encoding='utf-8') as f:
                     f.write(' '.join(tools.wordlist))
@@ -166,7 +166,7 @@ def waiting_user_handler(r):
             msg = msg.lower()
             was_deleted = False
             for wrd in msg.split():
-                if wrd in tools.wordlist:
+                if tools.is_in_wordlist(wrd):
                     tools.wordlist.remove(wrd)
                     was_deleted = True
                 else:
