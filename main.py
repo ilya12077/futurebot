@@ -166,7 +166,7 @@ def waiting_user_handler(r):
             msg = msg.lower()
             was_deleted = False
             for wrd in msg.split():
-                if not tools.is_in_wordlist(wrd)[0]:
+                if tools.is_in_wordlist(wrd)[0]:
                     try:
                         tools.wordlist.remove(wrd)
                         was_deleted = False
