@@ -70,19 +70,20 @@ def firewall():
         elif r['message']['chat']['type'] == 'private':
             dm_handler(r)
         elif not os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
+            return 'ok'
             raise ValueError
     return 'OK'
 
 
 def group_handler(r):
     global allowed_userids
+    user_id = str(r['message']['from']['id'])
     if 'sender_chat' in r['message']:
         true_user_id = str(r['message']['sender_chat']['id'])
     else:
-        true_user_id = None
+        true_user_id = user_id
     if 'new_chat_members' in r['message']:
         return
-    user_id = str(r['message']['from']['id'])
     first_name = r['message']['from']['first_name']
     if 'username' in r['message']['from']:
         username = '@' + r['message']['from']['username']
@@ -376,4 +377,4 @@ if __name__ == '__main__':
         serve(app, host='0.0.0.0', port=8881, url_scheme='http')
     else:
         # app.run(host='192.168.1.10', port=8885)
-        app.run(host='192.168.1.27', port=8887)
+        app.run(host='192.168.1.27', port=8889)

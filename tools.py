@@ -35,10 +35,11 @@ for filename in ['wordlist.txt', 'asked_userids.txt', 'log.txt', 'history.txt', 
         with open(f'{path}data/{filename}', 'w', encoding='utf-8') as fl:
             fl.write('1 1')
 if not os.path.isfile(f'{path}data/allowed_userids.txt'):
+    with open(f'{path}names.json', 'r') as fl:
+        ids = json.load(fl)
     # Создаем файл, если он не существует
     with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as fl:
-        fl.write('136817688 1087968824')  # когда от каналов и от группы
-
+        fl.write('136817688 ' + ' '.join(ids.keys()) + ' ' + str(future_group_id))  # когда от каналов и от группы и @GroupAnonymousBot
 with open(f'{path}names.json', 'r') as fl:
     ids = json.load(fl)
 with open(f'{path}data/wordlist.txt', 'r', encoding='utf-8') as fl:
@@ -52,7 +53,7 @@ def wait_for_deletion(message_id, delay: int):
     timer.start()
 
 
-def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
+def asked_usrids(action, user_id, username, reply_to_message_id: int | None, message_thread_id: int = None):
     if action == 'remove' and switch_entire_authorization:
         for i in asked_userids:
             if i.split()[0] == user_id:
@@ -62,7 +63,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None):
     elif action == 'add' and switch_entire_authorization:
         if not switch_safe_mode:
             restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
-            r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id)
+            r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если вы человек. Иначе вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id, message_thread_id=message_thread_id)
             if r is not None:
                 # print(r.json())
                 wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
@@ -191,7 +192,7 @@ def append_history(user_id: int | str, r: str, date=time.time):
             f.write(f'Exception {e}' + '\n')
 
 
-def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None) -> None | Response:
+def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, reply_to_message_id: int = None, message_thread_id: int = None) -> None | Response:
     # print(switch_safe_mode, switch_authorize_all, switch_entire_authorization, switch_message_deletion)
     if spoiler:
         message = f'<tg-spoiler>{message}</tg-spoiler>'
@@ -210,6 +211,8 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
         }
     if reply_to_message_id is not None:
         send_body['reply_to_message_id'] = reply_to_message_id
+    if message_thread_id is not None:
+        send_body['message_thread_id'] = message_thread_id
     if switch_safe_mode:
         print(url + 'sendMessage', send_body)
     else:
