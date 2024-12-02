@@ -17,7 +17,7 @@ switch_entire_authorization = True  # T авторизация (отправка
 switch_message_deletion = True  # T любое удаление сообщение
 switch_forward_deletion = True  # T пересылка соо в группу
 
-spam_timeout = 3 * 60  # в секундах
+spam_timeout = 90  # в секундах
 authentication_message_timeout = 60 * 8
 max_duplicate_messages = 3
 
