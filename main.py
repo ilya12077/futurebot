@@ -132,6 +132,29 @@ def group_handler(r):
                 reason = f'{duplicate_count[0]}-е подряд'
             tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}', ping)
             return
+    if 'reply_to_message' in r['message'] and (
+            'text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
+        reply_to_message_id = r['message']['reply_to_message']['message_id']
+        tools.threading_delete_message(chat_id, reply_to_message_id)
+        tools.threading_delete_message(chat_id, r['message']['message_id'])
+        untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
+        if tools.switch_entire_authorization:
+            tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
+            if 'username' in r['message']['reply_to_message']['from']:
+                username = '@' + r['message']['reply_to_message']['from']['username']
+            else:
+                username = r['message']['reply_to_message']['from']['first_name']
+            tools.append_log(f'/notrusted {untrust_user_id} ({username})')
+            # tools.send_message(chat_id, f'done')
+            if not tools.asked_usrids('is', untrust_user_id, username, reply_to_message_id):
+                tools.asked_usrids('add', untrust_user_id, username, reply_to_message_id)
+            try:
+                if untrust_user_id in allowed_userids:
+                    allowed_userids.remove(untrust_user_id)
+                    with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
+                        f.write(' '.join(allowed_userids))
+            except ValueError:
+                pass
 
 
 def waiting_user_handler(r):
