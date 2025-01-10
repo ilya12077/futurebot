@@ -134,8 +134,8 @@ def keyboards(user):
 
 
 def threading_delete_message(chat_id, message_id):
-    # threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
-    request_delete_message(chat_id, message_id)
+    threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
+    # request_delete_message(chat_id, message_id)
 
 
 def request_delete_message(chat_id, message_id):
