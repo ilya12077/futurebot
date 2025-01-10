@@ -135,8 +135,8 @@ def group_handler(r):
     if 'reply_to_message' in r['message'] and (
             'text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
         reply_to_message_id = r['message']['reply_to_message']['message_id']
-        tools.threading_delete_message(chat_id, reply_to_message_id)
         tools.threading_delete_message(chat_id, r['message']['message_id'])
+        tools.threading_delete_message(chat_id, reply_to_message_id)
         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
         if tools.switch_entire_authorization:
             tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
