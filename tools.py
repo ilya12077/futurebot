@@ -19,7 +19,7 @@ switch_forward_deletion = True  # T пересылка соо в группу
 spam_timeout = 2 * 60  # в секундах
 authentication_message_timeout = 60 * 1
 max_duplicate_messages = 3
-max_retries = 10
+max_retries = 5
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
@@ -63,9 +63,13 @@ def request_delete_message(chat_id, message_id):
         print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
     else:
         for i in range(max_retries):
-            r = requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
-            if r.json()['ok']:
-                break
+            try:
+                r = requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}', timeout=(2, 2))
+                if r.json()['ok']:
+                    break
+            except Exception as e:
+                print(str(e))
+
 
 def asked_usrids(action, user_id, username, reply_to_message_id: int | None, message_thread_id: int = None):
     if action == 'remove' and switch_entire_authorization:
@@ -76,8 +80,9 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
             f.write('\n'.join(asked_userids))
     elif action == 'add' and switch_entire_authorization:
         if not switch_safe_mode:
-            restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если Вы человек. Иначе Вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id, message_thread_id=message_thread_id)
+            threading_delete_message(future_group_id, reply_to_message_id)
+            restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
             if r is not None:
                 print(r.json())
                 wait_for_deletion(r.json()['result']['message_id'],
@@ -93,6 +98,9 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
                 if int(time.time()) - int(i.split()[1]) > authentication_message_timeout:
                     asked_userids.remove(i)
                     asked_usrids('add', user_id, username, reply_to_message_id)
+                else:
+                    threading_delete_message(future_group_id, reply_to_message_id)  # инчае остаются соо при активной авторизации и новых соо
+                break
         return flag
 
 
@@ -222,9 +230,12 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
         print(url + 'sendMessage', send_body)
     else:
         for i in range(max_retries):
-            r = requests.post(url + 'sendMessage', json=send_body)
-            if r.json()['ok']:
-                break
+            try:
+                r = requests.post(url + 'sendMessage', json=send_body, timeout=(2, 2))
+                if r.json()['ok']:
+                    break
+            except Exception as e:
+                print(str(e))
         # noinspection PyUnboundLocalVariable
         return r
 
@@ -310,7 +321,13 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
     if switch_safe_mode or not switch_message_deletion:
         print(url + 'restrictChatMember', send_body)
     else:
-        r = requests.post(url + 'restrictChatMember', json=send_body)
+        for i in range(max_retries):
+            try:
+                r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
+                if r.json()['ok']:
+                    break
+            except Exception as e:
+                print(str(e))
         # print(r.json())
         return r
 
@@ -332,6 +349,12 @@ def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
     if switch_safe_mode:
         print(url + 'restrictChatMember', send_body)
     else:
-        r = requests.post(url + 'restrictChatMember', json=send_body)
+        for i in range(max_retries):
+            try:
+                r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
+                if r.json()['ok']:
+                    break
+            except Exception as e:
+                print(str(e))
         # print(r.json())
         return r

@@ -34,9 +34,9 @@ def firewall():
     print(r)
     current_time = time.time()
     try:
-        if current_time - pendingupdates_lastchecked > 60 * 60 * 5:
+        if current_time - pendingupdates_lastchecked > 60 * 60 * 15:
             pendingupdates_lastchecked = current_time
-            response = requests.get(f'{tools.url}getWebhookInfo')
+            response = requests.get(f'{tools.url}getWebhookInfo', timeout=(1, 1))
             if response.status_code == 200:
                 pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
                 if pendingupdates_count > 25:
@@ -45,7 +45,7 @@ def firewall():
                                            f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
                         pendingupdates_lastsent = current_time
     except Exception as e:
-        print("requests.exceptions while PING: " + e)
+        print("requests.exceptions while PING: " + str(e))
     if 'callback_query' in r:
         if r['callback_query']['message']['chat']['id'] == tools.future_group_id:
             callback_data = str(r['callback_query']['data'])
@@ -99,7 +99,6 @@ def group_handler(r):
     if user_id not in allowed_userids and tools.switch_entire_authorization and not tools.switch_authorize_all and (user_id not in tools.ids and true_user_id not in tools.ids):
         if not tools.asked_usrids('is', user_id, username, message_id):
             tools.asked_usrids('add', user_id, username, message_id)
-        tools.threading_delete_message(chat_id, message_id)
         tools.append_log(f'удалено до авторизации: {r}', ping)
         return
     elif tools.switch_authorize_all and tools.switch_entire_authorization:
@@ -137,11 +136,9 @@ def group_handler(r):
                 reason = f'{duplicate_count[0]}-е подряд'
             tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}', ping)
             return
-    if 'reply_to_message' in r['message'] and (
-            'text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
+    if 'reply_to_message' in r['message'] and ('text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
         reply_to_message_id = r['message']['reply_to_message']['message_id']
         tools.threading_delete_message(chat_id, r['message']['message_id'])
-        tools.threading_delete_message(chat_id, reply_to_message_id)
         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
         if tools.switch_entire_authorization:
             tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
