@@ -34,9 +34,9 @@ def firewall():
     print(r)
     current_time = time.time()
     try:
-        if current_time - pendingupdates_lastchecked > 60:
+        if current_time - pendingupdates_lastchecked > 60 * 60 * 5:
             pendingupdates_lastchecked = current_time
-            response = requests.get(f'{tools.url}getWebhookInfo', timeout=(2, 2))
+            response = requests.get(f'{tools.url}getWebhookInfo')
             if response.status_code == 200:
                 pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
                 if pendingupdates_count > 25:
@@ -44,7 +44,7 @@ def firewall():
                         tools.send_message(647372660,
                                            f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
                         pendingupdates_lastsent = current_time
-    except requests.exceptions as e:
+    except Exception as e:
         print("requests.exceptions while PING: " + e)
     if 'callback_query' in r:
         if r['callback_query']['message']['chat']['id'] == tools.future_group_id:
@@ -404,5 +404,5 @@ if __name__ == '__main__':
     if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
         serve(app, host='0.0.0.0', port=8881, url_scheme='http')
     else:
-        # app.run(host='192.168.1.10', port=8885)
-        app.run(host='192.168.1.27', port=8889)
+        app.run(host='192.168.1.10', port=8885)
+        # app.run(host='192.168.1.27', port=8889)

@@ -19,6 +19,7 @@ switch_forward_deletion = True  # T пересылка соо в группу
 spam_timeout = 2 * 60  # в секундах
 authentication_message_timeout = 60 * 1
 max_duplicate_messages = 3
+max_retries = 5
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
@@ -52,6 +53,20 @@ def wait_for_deletion(message_id, delay: int):
     timer.start()
 
 
+def threading_delete_message(chat_id, message_id):
+    threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
+    # request_delete_message(chat_id, message_id)
+
+
+def request_delete_message(chat_id, message_id):
+    if switch_safe_mode or not switch_message_deletion:
+        print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
+    else:
+        for i in range(max_retries):
+            r = requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
+            if r.json()['result']:
+                break
+
 def asked_usrids(action, user_id, username, reply_to_message_id: int | None, message_thread_id: int = None):
     if action == 'remove' and switch_entire_authorization:
         for i in asked_userids:
@@ -64,8 +79,9 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
             restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если Вы человек. Иначе Вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id, message_thread_id=message_thread_id)
             if r is not None:
-                # print(r.json())
-                wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)
+                print(r.json())
+                wait_for_deletion(r.json()['result']['message_id'],
+                                  authentication_message_timeout)  # удаляет мсг аутентификации
                 asked_userids.append(f'{user_id} {int(time.time())}')
                 with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
                     f.write('\n'.join(asked_userids))
@@ -133,16 +149,8 @@ def keyboards(user):
         return None
 
 
-def threading_delete_message(chat_id, message_id):
-    threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
-    # request_delete_message(chat_id, message_id)
 
 
-def request_delete_message(chat_id, message_id):
-    if switch_safe_mode or not switch_message_deletion:
-        print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
-    else:
-        requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}', timeout=(5, 10))
 
 
 def count_duplicate_messages(user_id: str) -> tuple:
@@ -216,8 +224,11 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
     if switch_safe_mode:
         print(url + 'sendMessage', send_body)
     else:
-        r = requests.post(url + 'sendMessage', json=send_body, timeout=(5, 10))
-        # print(r.content)
+        for i in range(max_retries):
+            r = requests.post(url + 'sendMessage', json=send_body)
+            if r.json()['result']:
+                break
+        # noinspection PyUnboundLocalVariable
         return r
 
 
