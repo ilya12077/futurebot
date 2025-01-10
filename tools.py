@@ -19,7 +19,7 @@ switch_forward_deletion = True  # T пересылка соо в группу
 spam_timeout = 2 * 60  # в секундах
 authentication_message_timeout = 60 * 1
 max_duplicate_messages = 3
-max_retries = 5
+max_retries = 10
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
@@ -64,7 +64,7 @@ def request_delete_message(chat_id, message_id):
     else:
         for i in range(max_retries):
             r = requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
-            if r.json()['result']:
+            if r.json()['ok']:
                 break
 
 def asked_usrids(action, user_id, username, reply_to_message_id: int | None, message_thread_id: int = None):
@@ -150,9 +150,6 @@ def keyboards(user):
 
 
 
-
-
-
 def count_duplicate_messages(user_id: str) -> tuple:
     with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
         count = (1, 'default')  # счет, прошлое значение | начинается с 1, тк первое сообщение уже одно
@@ -226,7 +223,7 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
     else:
         for i in range(max_retries):
             r = requests.post(url + 'sendMessage', json=send_body)
-            if r.json()['result']:
+            if r.json()['ok']:
                 break
         # noinspection PyUnboundLocalVariable
         return r
