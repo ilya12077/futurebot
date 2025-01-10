@@ -33,15 +33,19 @@ def firewall():
         f.write(str(r) + '\n')
     print(r)
     current_time = time.time()
-    if current_time - pendingupdates_lastchecked > 60:
-        pendingupdates_lastchecked = current_time
-        response = requests.get(f'{tools.url}getWebhookInfo')
-        if response.status_code == 200:
-            pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
-            if pendingupdates_count > 25:
-                if current_time - pendingupdates_lastsent > 60 * 5:  # 3600 секунд = 1 час
-                    tools.send_message(647372660, f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
-                    pendingupdates_lastsent = current_time
+    try:
+        if current_time - pendingupdates_lastchecked > 60:
+            pendingupdates_lastchecked = current_time
+            response = requests.get(f'{tools.url}getWebhookInfo', timeout=(2, 2))
+            if response.status_code == 200:
+                pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
+                if pendingupdates_count > 25:
+                    if current_time - pendingupdates_lastsent > 60 * 5:  # 3600 секунд = 1 час
+                        tools.send_message(647372660,
+                                           f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
+                        pendingupdates_lastsent = current_time
+    except requests.exceptions as e:
+        print("requests.exceptions while PING: " + e)
     if 'callback_query' in r:
         if r['callback_query']['message']['chat']['id'] == tools.future_group_id:
             callback_data = str(r['callback_query']['data'])
@@ -71,6 +75,7 @@ def firewall():
             dm_handler(r)
         elif not os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
             return 'ok'
+            # noinspection PyUnreachableCode
             raise ValueError
     return 'OK'
 
@@ -135,8 +140,8 @@ def group_handler(r):
     if 'reply_to_message' in r['message'] and (
             'text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
         reply_to_message_id = r['message']['reply_to_message']['message_id']
-        tools.threading_delete_message(chat_id, reply_to_message_id)
         tools.threading_delete_message(chat_id, r['message']['message_id'])
+        tools.threading_delete_message(chat_id, reply_to_message_id)
         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
         if tools.switch_entire_authorization:
             tools.restrictChatMember_msgSend(chat_id, untrust_user_id)

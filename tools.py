@@ -1,6 +1,5 @@
 import ast
 import datetime
-import html
 import json
 import os
 import threading
@@ -136,13 +135,14 @@ def keyboards(user):
 
 def threading_delete_message(chat_id, message_id):
     threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
+    # request_delete_message(chat_id, message_id)
 
 
 def request_delete_message(chat_id, message_id):
     if switch_safe_mode or not switch_message_deletion:
         print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
     else:
-        requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
+        requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}', timeout=(5, 10))
 
 
 def count_duplicate_messages(user_id: str) -> tuple:
@@ -216,12 +216,9 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
     if switch_safe_mode:
         print(url + 'sendMessage', send_body)
     else:
-        r = requests.post(url + 'sendMessage', json=send_body)
+        r = requests.post(url + 'sendMessage', json=send_body, timeout=(5, 10))
         # print(r.content)
-        if r.status_code == 400:
-            send_message(chat_id, html.escape(message), keyboard, spoiler)
-        else:
-            return r
+        return r
 
 
 def upload_photo(chat_id, file):
