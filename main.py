@@ -32,8 +32,8 @@ def firewall():
     with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
         f.write(str(r) + '\n')
     print(r)
+    current_time = time.time()
     try:
-        current_time = time.time()
         if current_time - pendingupdates_lastchecked > 60:
             pendingupdates_lastchecked = current_time
             response = requests.get(f'{tools.url}getWebhookInfo', timeout=(2, 2))
@@ -75,6 +75,7 @@ def firewall():
             dm_handler(r)
         elif not os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
             return 'ok'
+            # noinspection PyUnreachableCode
             raise ValueError
     return 'OK'
 
