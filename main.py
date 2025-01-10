@@ -32,16 +32,20 @@ def firewall():
     with open(f'{path}data/quires.txt', 'a', encoding='utf-8') as f:
         f.write(str(r) + '\n')
     print(r)
-    current_time = time.time()
-    if current_time - pendingupdates_lastchecked > 60:
-        pendingupdates_lastchecked = current_time
-        response = requests.get(f'{tools.url}getWebhookInfo')
-        if response.status_code == 200:
-            pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
-            if pendingupdates_count > 25:
-                if current_time - pendingupdates_lastsent > 60 * 5:  # 3600 секунд = 1 час
-                    tools.send_message(647372660, f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
-                    pendingupdates_lastsent = current_time
+    try:
+        current_time = time.time()
+        if current_time - pendingupdates_lastchecked > 60:
+            pendingupdates_lastchecked = current_time
+            response = requests.get(f'{tools.url}getWebhookInfo', timeout=(2, 2))
+            if response.status_code == 200:
+                pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
+                if pendingupdates_count > 25:
+                    if current_time - pendingupdates_lastsent > 60 * 5:  # 3600 секунд = 1 час
+                        tools.send_message(647372660,
+                                           f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
+                        pendingupdates_lastsent = current_time
+    except requests.exceptions as e:
+        print("requests.exceptions while PING: " + e)
     if 'callback_query' in r:
         if r['callback_query']['message']['chat']['id'] == tools.future_group_id:
             callback_data = str(r['callback_query']['data'])
