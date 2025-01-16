@@ -66,7 +66,7 @@ def request_delete_message(chat_id, message_id):
             try:
                 r = requests.post(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}', timeout=(2, 2))
                 if r.json()['ok']:
-                    break
+                    return
             except Exception as e:
                 print(str(e))
 
@@ -228,6 +228,7 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
     if switch_safe_mode:
         print(url + 'sendMessage', send_body)
     else:
+        r = None
         for i in range(max_retries):
             try:
                 r = requests.post(url + 'sendMessage', json=send_body, timeout=(2, 2))
@@ -235,7 +236,6 @@ def send_message(chat_id: int | str, message, keyboard=None, spoiler=False, repl
                     break
             except Exception as e:
                 print(str(e))
-        # noinspection PyUnboundLocalVariable
         return r
 
 
@@ -320,11 +320,12 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
     if switch_safe_mode or not switch_message_deletion:
         print(url + 'restrictChatMember', send_body)
     else:
+        r = None
         for i in range(max_retries):
             try:
                 r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
                 if r.json()['ok']:
-                    break
+                    return
             except Exception as e:
                 print(str(e))
         # print(r.json())
@@ -348,11 +349,12 @@ def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
     if switch_safe_mode:
         print(url + 'restrictChatMember', send_body)
     else:
+        r = None
         for i in range(max_retries):
             try:
                 r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
                 if r.json()['ok']:
-                    break
+                    return
             except Exception as e:
                 print(str(e))
         # print(r.json())
