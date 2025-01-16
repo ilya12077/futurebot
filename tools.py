@@ -85,8 +85,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
             restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
             if r is not None:
                 print(r.json())
-                wait_for_deletion(r.json()['result']['message_id'],
-                                  authentication_message_timeout)  # удаляет мсг аутентификации
+                wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)  # удаляет мсг аутентификации
                 asked_userids.append(f'{user_id} {int(time.time())}')
                 with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
                     f.write('\n'.join(asked_userids))
