@@ -17,6 +17,7 @@ else:
 
 with open(f'{path}data/allowed_userids.txt', 'r', encoding='utf-8') as fl:
     allowed_userids = fl.read().split()
+    if '1942259021' in allowed_userids: allowed_userids.remove('1942259021')
 
 pendingupdates_lastchecked = 0
 pendingupdates_lastsent = 0
