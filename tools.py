@@ -25,7 +25,7 @@ load_dotenv(find_dotenv())
 url = os.environ.get('URL')
 future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
-    path = '/etc/futurebot/'
+    path = '/root/futurebot/'
 else:
     path = ''
 

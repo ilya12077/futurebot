@@ -11,7 +11,7 @@ import tools
 app = Flask(__name__)
 
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
-    path = '/etc/futurebot/'
+    path = '/root/futurebot/'
 else:
     path = ''
 
@@ -399,7 +399,7 @@ def dm_handler(r):
 
 if __name__ == '__main__':
     if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
-        serve(app, host='0.0.0.0', port=8881, url_scheme='http')
+        serve(app, host='5.182.86.228', port=8881, url_scheme='http')
     else:
-        app.run(host='192.168.1.10', port=8885)
+        app.run(host='5.182.86.228', port=443)
         # app.run(host='192.168.1.27', port=8889)
