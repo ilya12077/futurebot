@@ -83,7 +83,7 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
             r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если Вы человек. Иначе Вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id, message_thread_id=message_thread_id)
             threading_delete_message(future_group_id, reply_to_message_id)
             restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
-            if r is not None:
+            if r is not None and r.json()['ok']:  # сообщение не удалено раньше
                 print(r.json())
                 wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)  # удаляет мсг аутентификации
                 asked_userids.append(f'{user_id} {int(time.time())}')
@@ -275,9 +275,9 @@ def append_log(msg, ping: int = None):
             old_data = f.read()
         with open(f'{path}data/log.txt', 'w', encoding='utf-8') as f:
             if not ping:
-                f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%H:%M:%S")}]: {msg}' + '\n')
+                f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%d.%m.%Y %H:%M:%S")}]: {msg}' + '\n')
             else:
-                f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%H:%M:%S")}]<b>({ping}s.)</b> : {msg}' + '\n' + old_data)
+                f.write(f'[{datetime.datetime.now(pytz.timezone("Europe/Moscow")).strftime("%d.%m.%Y %H:%M:%S")}]<b>({ping}s.)</b> : {msg}' + '\n' + old_data)
         print(msg)
     except Exception as e:
         with open(f'{path}data/log.txt', 'a', encoding='cp1251') as f:

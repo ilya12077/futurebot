@@ -74,6 +74,7 @@ def firewall():
         elif r['message']['chat']['type'] == 'private':
             dm_handler(r)
         elif not os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
+            print("скип")
             return 'ok'
             # noinspection PyUnreachableCode
             raise ValueError
@@ -315,14 +316,13 @@ def dm_handler(r):
                         'parse_mode': 'HTML',
                         'reply_markup': tools.keyboards(user_id)
                     }
+                    requests.post(tools.url + 'sendMessage', json=send_body)
                 else:
-                    send_body = {
-                        'chat_id': user_id,
-                        'text': log[-4096:],
-                        'parse_mode': 'HTML',
-                        'reply_markup': tools.keyboards(user_id)
-                    }
-                requests.post(tools.url + 'sendMessage', json=send_body)
+                    tools.upload_file(user_id, f'{path}data/log.txt')
+        case '/clear_logs' if user_id in tools.ids:
+            with open(f'{path}data/log.txt', 'w', encoding='utf-8') as f:
+                f.write(':)')
+            tools.send_message(user_id, 'Проверишь меня на /logs?')
         case '/dm_logs' if user_id == "647372660":
             with open(f'{path}data/dm_log.txt', 'r', encoding='utf-8') as f:
                 log = f.read()
@@ -401,5 +401,5 @@ if __name__ == '__main__':
     if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
         serve(app, host='5.182.86.228', port=8881, url_scheme='http')
     else:
-        app.run(host='5.182.86.228', port=443)
+        app.run(host='192.168.1.10', port=8881)
         # app.run(host='192.168.1.27', port=8889)
