@@ -256,7 +256,8 @@ def upload_file(chat_id, file):
     if switch_safe_mode:
         print(f'{url}sendDocument?chat_id={chat_id}')
     else:
-        requests.post(f'{url}sendDocument?chat_id={chat_id}', files=files)
+        r = requests.post(f'{url}sendDocument?chat_id={chat_id}', files=files)
+        print(r.json())
 
 
 def upload_video(chat_id, file, caption='', reply_to_message_id=''):

@@ -335,6 +335,8 @@ def dm_handler(r):
                     requests.post(tools.url + 'sendMessage', json=send_body)
                 else:
                     tools.upload_file(user_id, 'dm_log.txt')
+        case '/get_db' if user_id == "647372660":
+            tools.upload_file(user_id, f'{path}data/allowed_userids.txt')
         case 'админка' if user_id in tools.ids:
             data = {'keyboard': [[{'text': 'accept all авторизация'}, {'text': 'задать max_duplicate_messages'}],
                                  [{'text': 'вся авторизация (отправка, удаление)'}, {'text': 'любые удаления сообщений'}, {'text': 'запретить форвард'}],
