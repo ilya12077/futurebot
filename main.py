@@ -401,7 +401,7 @@ def dm_handler(r):
 
 if __name__ == '__main__':
     if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
-        serve(app, host='5.182.86.228', port=8881, url_scheme='http')
+        serve(app, host='217.171.146.235', port=8881, url_scheme='http')
     else:
         app.run(host='192.168.1.10', port=8881)
         # app.run(host='192.168.1.27', port=8889)
