@@ -170,11 +170,11 @@ def count_duplicate_messages(user_id: str) -> tuple:
                             text = r['message']['caption']
                         else:
                             text = r['message']['text']
-                        texts.append(text)
-                        if count[1] == text or text in texts:
+                        if text in texts:
                             count = (count[0] + 1, text)
                         else:
                             count = (count[0], text)
+                            texts.append(text)
                     else:
                         if count[1] == '<i>вложение</i>':
                             count = (count[0] + 1, '<i>вложение</i>')
@@ -182,8 +182,8 @@ def count_duplicate_messages(user_id: str) -> tuple:
                             count = (count[0], '<i>вложение</i>')
                 except ValueError:  # ast syntax 153
                     pass
-                # print(count)
-    # print(count)
+                print(count)
+    print(count)
     return count
 
 
