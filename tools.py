@@ -160,6 +160,7 @@ def keyboards(user):
 def count_duplicate_messages(user_id: str) -> tuple:
     with open(f'{path}data/history.txt', 'r', encoding='utf-8') as f:
         count = (1, 'default')  # счет, прошлое значение | начинается с 1, тк первое сообщение уже одно
+        texts = []
         for i in f.readlines():
             if i.split()[1] == user_id:
                 try:
@@ -169,15 +170,16 @@ def count_duplicate_messages(user_id: str) -> tuple:
                             text = r['message']['caption']
                         else:
                             text = r['message']['text']
-                        if count[1] == text:
+                        texts.append(text)
+                        if count[1] == text or text in texts:
                             count = (count[0] + 1, text)
                         else:
-                            count = (1, text)
+                            count = (count[0], text)
                     else:
                         if count[1] == '<i>вложение</i>':
                             count = (count[0] + 1, '<i>вложение</i>')
                         else:
-                            count = (1, '<i>вложение</i>')
+                            count = (count[0], '<i>вложение</i>')
                 except ValueError:  # ast syntax 153
                     pass
                 # print(count)
