@@ -305,7 +305,7 @@ def get_admins() -> list:
     return result
 
 
-def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration: int = 60 * 60 * 6):
+def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration: int = 60 * 60 * 10):
     until_date = int(time.time()) + duration
     send_body = {
         'chat_id': chat_id,
