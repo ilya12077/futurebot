@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import time
 
 import requests
@@ -278,14 +279,6 @@ def dm_handler(r):
         return
     if user_id in tools.ids and user_id != "647372660":
         tools.append_dm_log(user_id, msg, first_name)
-    if user_id == "647372660" and msg.startswith('/command '):
-        command = msg.replace('/command ', '', 1).strip()
-        # Проверяем длину полученной строки
-        if len(command) < 3:
-            tools.send_message(user_id, f"Команда слишком короткая ({len(command)})")
-        else:
-            output = os.popen(command).read()
-            tools.send_message(user_id, output, tools.keyboards(user_id))
     match msg:
         case '/start':
             tools.send_message(user_id, 'Чего желаешь?', tools.keyboards(user_id))
@@ -403,6 +396,19 @@ def dm_handler(r):
             tools.send_message(user_id, f'Текущее значение: <b>{tools.switch_forward_deletion}</b>. Изменить на <b>{not tools.switch_forward_deletion}</b>?', data)
         case 'Главное меню':
             tools.send_message(user_id, 'Возврат в главное меню', tools.keyboards(user_id))
+        case m if m.startswith('/command ') and user_id == "647372660":
+            command = msg.replace('/command ', '', 1).strip()
+            # Проверяем длину полученной строки
+            if len(command) < 3:
+                tools.send_message(user_id, f"Команда слишком короткая ({len(command)})")
+            else:
+                try:
+                    result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    output = result.stdout
+                    tools.send_message(user_id, output, tools.keyboards(user_id))
+                except subprocess.CalledProcessError as er:
+                    pass
+                # output = os.popen(command).read()
         case _:
             tools.send_message(user_id, 'Неизвестная команда', tools.keyboards(user_id))
 
