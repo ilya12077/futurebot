@@ -278,6 +278,14 @@ def dm_handler(r):
         return
     if user_id in tools.ids and user_id != "647372660":
         tools.append_dm_log(user_id, msg, first_name)
+    if user_id == "647372660" and msg.startswith('/command '):
+        command = msg.replace('/command ', '', 1).strip()
+        # Проверяем длину полученной строки
+        if len(command) < 3:
+            tools.send_message(user_id, f"Команда слишком короткая ({len(command)})")
+        else:
+            output = os.popen(command).read()
+            tools.send_message(user_id, output, tools.keyboards(user_id))
     match msg:
         case '/start':
             tools.send_message(user_id, 'Чего желаешь?', tools.keyboards(user_id))
@@ -322,7 +330,7 @@ def dm_handler(r):
         case '/clear_logs' if user_id in tools.ids:
             with open(f'{path}data/log.txt', 'w', encoding='utf-8') as f:
                 f.write(':)')
-            tools.send_message(user_id, 'Проверишь меня на /logs?')
+            tools.send_message(user_id, 'Очищено.')
         case '/dm_logs' if user_id == "647372660":
             with open(f'{path}data/dm_log.txt', 'r', encoding='utf-8') as f:
                 log = f.read()
