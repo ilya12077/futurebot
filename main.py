@@ -403,11 +403,12 @@ def dm_handler(r):
                 tools.send_message(user_id, f"Команда слишком короткая ({len(command)})")
             else:
                 try:
-                    result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8')
                     output = result.stdout
                     tools.send_message(user_id, output, tools.keyboards(user_id))
-                except subprocess.CalledProcessError as er:
-                    pass
+                except subprocess.CalledProcessError as e:
+                    tools.send_message(user_id, e.stderr, tools.keyboards(user_id))
+                    return
                 # output = os.popen(command).read()
         case _:
             tools.send_message(user_id, 'Неизвестная команда', tools.keyboards(user_id))
