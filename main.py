@@ -25,7 +25,7 @@ pendingupdates_lastsent = 0
 ping = 0
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/futurebot', methods=['GET', 'POST'])
 def firewall():
     global pendingupdates_lastchecked, pendingupdates_lastsent, ping
     if request.method == "GET":
