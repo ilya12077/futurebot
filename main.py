@@ -92,7 +92,7 @@ def group_handler(r):
     if 'new_chat_members' in r['message']:
         return
     first_name = r['message']['from']['first_name']
-    if 'username' in r['message']['from']:
+    if False:#'username' in r['message']['from']:
         username = '@' + r['message']['from']['username']
     else:
         username = first_name
@@ -144,7 +144,7 @@ def group_handler(r):
         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
         if tools.switch_entire_authorization:
             tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
-            if 'username' in r['message']['reply_to_message']['from']:
+            if False:# 'username' in r['message']['reply_to_message']['from']:
                 username = '@' + r['message']['reply_to_message']['from']['username']
             else:
                 username = r['message']['reply_to_message']['from']['first_name']
