@@ -112,7 +112,7 @@ def group_handler(r):
         except ValueError:
             pass
     tools.append_history(user_id, r)
-    if 'entities' in r['message'] and (r['message']['entities'][0]['type'] == 'mention' or r['message']['entities'][0]['type'] == 'url'):
+    if 'entities' in r['message'] and (r['message']['entities'][0]['type'] == 'mention' or r['message']['entities'][0]['type'] == 'url') and tools.switch_message_deletion and tools.switch_mention_deletion and (user_id not in tools.ids and true_user_id not in tools.ids):
         tools.threading_delete_message(chat_id, message_id)
         tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 25)
         reason = f'url or mention'
@@ -273,7 +273,16 @@ def waiting_user_handler(r):
             del tools.ids[user_id]['waiting']['params']
             with open(f'{path}names.json', 'w') as f:
                 json.dump(tools.ids, f, indent=2)
-
+        case 'url':
+            if msg == 'Да':
+                tools.switch_mention_deletion = not tools.switch_mention_deletion
+                tools.send_message(user_id, 'Готово', tools.keyboards(user_id))
+            else:
+                tools.send_message(user_id, 'Не понял', tools.keyboards(user_id))
+            tools.ids[user_id]['waiting']['is_waiting'] = False
+            del tools.ids[user_id]['waiting']['params']
+            with open(f'{path}names.json', 'w') as f:
+                json.dump(tools.ids, f, indent=2)
 
 def dm_handler(r):
     user_id = str(r['message']['from']['id'])
@@ -351,7 +360,7 @@ def dm_handler(r):
             tools.upload_file(user_id, f'{path}data/quires.txt')
         case 'админка' if user_id in tools.ids:
             data = {'keyboard': [[{'text': 'accept all авторизация'}, {'text': 'задать max_duplicate_messages'}],
-                                 [{'text': 'вся авторизация (отправка, удаление)'}, {'text': 'любые удаления сообщений'}, {'text': 'запретить форвард'}],
+                                 [{'text': 'вся авторизация (отправка, удаление)'}, {'text': 'любые удаления сообщений'}, {'text': 'запретить форвард'}, {'text': 'запр. url/mention'}],
                                  [{'text': 'Главное меню'}]],
                     'one_time_keyboard': True,
                     'resize_keyboard': True}
@@ -366,6 +375,16 @@ def dm_handler(r):
             with open(f'{path}names.json', 'w') as f:
                 json.dump(tools.ids, f, indent=2)
             tools.send_message(user_id, f'Текущее значение: <b>{tools.switch_authorize_all}</b>. Изменить на <b>{not tools.switch_authorize_all}</b>?', data)
+        case 'запр. url/mention' if user_id in tools.ids:
+            data = {'keyboard': [[{'text': 'Да'}],
+                                 [{'text': 'Отмена'}]],
+                    'one_time_keyboard': True,
+                    'resize_keyboard': True}
+            tools.ids[user_id]['waiting']['is_waiting'] = True
+            tools.ids[user_id]['waiting']['params'] = {'reason': 'url'}
+            with open(f'{path}names.json', 'w') as f:
+                json.dump(tools.ids, f, indent=2)
+            tools.send_message(user_id, f'Текущее значение: <b>{tools.switch_mention_deletion}</b>. Изменить на <b>{not tools.switch_mention_deletion}</b>?', data)
         case 'вся авторизация (отправка, удаление)' if user_id in tools.ids:
             data = {'keyboard': [[{'text': 'Да'}],
                                  [{'text': 'Отмена'}]],

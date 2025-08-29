@@ -15,7 +15,7 @@ switch_authorize_all = False  # F добавлять всех сразу в allo
 switch_entire_authorization = True  # T авторизация (отправка соо, удаление)
 switch_message_deletion = True  # T любое удаление сообщение
 switch_forward_deletion = True  # T пересылка соо в группу
-
+switch_mention_deletion = True  # mention and url
 spam_timeout = 60 * 20  # в секундах
 authentication_message_timeout = 120
 max_duplicate_messages = 7
