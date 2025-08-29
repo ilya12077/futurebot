@@ -135,7 +135,7 @@ def group_handler(r):
             msg = ''
         duplicate_count = tools.count_duplicate_messages(user_id)  # (int count, str type)
         wordlist_result = tools.is_in_wordlist(msg)
-        if (duplicate_count[0] > tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
+        if (wordlist_result[0]) and (user_id not in tools.get_admins()):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 30)
