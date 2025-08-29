@@ -17,7 +17,7 @@ switch_message_deletion = True  # T любое удаление сообщени
 switch_forward_deletion = True  # T пересылка соо в группу
 switch_mention_deletion = True  # mention and url
 spam_timeout = 60 * 20  # в секундах
-authentication_message_timeout = 120
+authentication_message_timeout = 180
 max_duplicate_messages = 7
 max_retries = 5
 
