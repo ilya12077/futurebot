@@ -53,9 +53,10 @@ def firewall():
                 tools.asked_usrids('remove', chat_id, callback_data, '', None)
                 if callback_data not in allowed_userids:
                     allowed_userids.append(callback_data)
-                    tools.unRestrictChatMember_msgSend(chat_id, callback_data)
+                    
                     with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
                         f.write(' '.join(allowed_userids))
+                tools.unRestrictChatMember_msgSend(chat_id, callback_data)
             except ValueError:
                 pass
             tools.threading_delete_message(chat_id, r['callback_query']['message']['message_id'])
