@@ -91,6 +91,7 @@ def group_handler(r):
     if 'new_chat_members' in r['message']:
         return
     first_name = r['message']['from']['first_name']
+    # noinspection PyUnreachableCode
     if False:#'username' in r['message']['from']:
         username = '@' + r['message']['from']['username']
     else:
