@@ -94,7 +94,7 @@ def asked_usrids(action, chat_id: int, user_id, username, reply_to_message_id: i
         for i in asked_userids:
             if i.split()[0] == user_id:
                 flag = True
-                if int(time.time()) - int(i.split()[1]) > authentication_message_timeout:
+                if int(time.time()) - int(i.split()[1]) > 3:
                     asked_userids.remove(i)
                     asked_usrids('add', chat_id, user_id, username, reply_to_message_id, message_thread_id)
                 else:
