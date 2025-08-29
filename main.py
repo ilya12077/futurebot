@@ -138,9 +138,9 @@ def group_handler(r):
         if (duplicate_count[0] > tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
-                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 25)
+                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 60 * 5)
                 reason = f'по фильтру(<i>{wordlist_result[1]}</i>)'
-                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за стоп-слово🔇", message_thread_id=message_thread_id)
+                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за стоп-слово🎶 на 5 часов", message_thread_id=message_thread_id)
             else:
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 5)
                 reason = f'{duplicate_count[0]}-е подряд'
