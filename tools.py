@@ -328,7 +328,7 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
         r = None
         for i in range(max_retries):
             try:
-                r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
+                r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(5, 5))
                 if r.json()['ok']:
                     break
             except Exception as e:
@@ -355,7 +355,7 @@ def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
         r = None
         for i in range(max_retries):
             try:
-                r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
+                r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(5, 5))
                 if r.json()['ok']:
                     return
             except Exception as e:
