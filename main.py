@@ -359,7 +359,7 @@ def dm_handler(r):
         case '/get_data' if user_id == "647372660":
             tools.upload_file(user_id, f'{path}data/asked_userids.txt')
             tools.upload_file(user_id, f'{path}data/quires.txt')
-            tools.upload_file(user_id, f'{path}data/log.txt.txt')
+            tools.upload_file(user_id, f'{path}data/log.txt')
         case 'админка' if user_id in tools.ids:
             data = {'keyboard': [[{'text': 'accept all авторизация'}, {'text': 'задать max_duplicate_messages'}],
                                  [{'text': 'вся авторизация (отправка, удаление)'}, {'text': 'любые удаления сообщений'}, {'text': 'запретить форвард'}, {'text': 'запр. url/mention'}],
