@@ -20,9 +20,17 @@ with open(f'{path}data/allowed_userids.txt', 'r', encoding='utf-8') as fl:
     allowed_userids = fl.read().split()
     if '1942259021' in allowed_userids: allowed_userids.remove('1942259021')
 
-pendingupdates_lastchecked = 0
-pendingupdates_lastsent = 0
-ping = 0
+
+# with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:    ###тест
+#     asss = [_.split()[0] for _ in fl.readlines()]
+#     for idd in range(len(asss)-1,0,-1):
+#         if asss[idd] not in allowed_userids:
+#             tools.restrictChatMember_msgSend(tools.future_group_id, idd, 0)
+#             print("bAN")
+#             # time.sleep(0.2)
+#         else:
+#             print('skip')
+#
 
 
 @app.route('/futurebot', methods=['GET', 'POST'])
@@ -35,33 +43,23 @@ def firewall():
         f.write(str(r) + '\n')
     print(r)
     current_time = time.time()
-    try:
-        if current_time - pendingupdates_lastchecked > 60 * 60 * 15:
-            pendingupdates_lastchecked = current_time
-            response = requests.get(f'{tools.url}getWebhookInfo', timeout=(1, 1))
-            if response.status_code == 200:
-                pendingupdates_count = response.json().get("result", {}).get("pending_update_count", 0)
-                if pendingupdates_count > 25:
-                    if current_time - pendingupdates_lastsent > 60 * 5:  # 3600 секунд = 1 час
-                        tools.send_message(647372660, f'⭕Я заметил, что pending updates сейчас: <b>{pendingupdates_count}</b>\n{tools.url}getWebhookInfo')
-                        pendingupdates_lastsent = current_time
-    except Exception as e:
-        print("requests.exceptions while PING: " + str(e))
+
     if 'callback_query' in r:
-        if r['callback_query']['message']['chat']['id'] == tools.future_group_id:
-            callback_data = str(r['callback_query']['data'])
-            if str(r['callback_query']['from']['id']) == callback_data and tools.switch_entire_authorization:
-                try:
-                    tools.asked_usrids('remove', callback_data, '', None)
-                    if callback_data not in allowed_userids:
-                        allowed_userids.append(callback_data)
-                        tools.unRestrictChatMember_msgSend(tools.future_group_id, callback_data)
-                        with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
-                            f.write(' '.join(allowed_userids))
-                except ValueError:  # ????
-                    pass
-                tools.threading_delete_message(tools.future_group_id, r['callback_query']['message']['message_id'])
-            requests.post(tools.url + f"answerCallbackQuery?callback_query_id={r['callback_query']['id']}")
+        # if r['callback_query']['message']['chat']['id'] == tools.future_group_id:
+        chat_id = int(r['callback_query']['message']['chat']['id'])
+        callback_data = str(r['callback_query']['data'])
+        if str(r['callback_query']['from']['id']) == callback_data and tools.switch_entire_authorization:
+            try:
+                tools.asked_usrids('remove', chat_id, callback_data, '', None)
+                if callback_data not in allowed_userids:
+                    allowed_userids.append(callback_data)
+                    tools.unRestrictChatMember_msgSend(chat_id, callback_data)
+                    with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
+                        f.write(' '.join(allowed_userids))
+            except ValueError:
+                pass
+            tools.threading_delete_message(chat_id, r['callback_query']['message']['message_id'])
+        requests.post(tools.url + f"answerCallbackQuery?callback_query_id={r['callback_query']['id']}")
         return 'OK'
     if 'edited_message' in r:
         r['message'] = r['edited_message']
@@ -70,7 +68,7 @@ def firewall():
         ping = round(current_time - int(r['message']['date']), 2)
         print(f'ping: {ping}s. ')
         chat_id = int(r['message']['chat']['id'])
-        if chat_id == tools.future_group_id:
+        if str(chat_id) in tools.future_group_id:
             group_handler(r)
         elif r['message']['chat']['type'] == 'private':
             dm_handler(r)
@@ -97,15 +95,16 @@ def group_handler(r):
     else:
         username = first_name
     message_id = r['message']['message_id']
+    message_thread_id = r['message']['message_thread_id'] if 'message_thread_id' in r['message'] else 0
     chat_id = int(r['message']['chat']['id'])
     if user_id not in allowed_userids and tools.switch_entire_authorization and not tools.switch_authorize_all and (user_id not in tools.ids and true_user_id not in tools.ids):
-        if not tools.asked_usrids('is', user_id, username, message_id):
-            tools.asked_usrids('add', user_id, username, message_id)
+        if not tools.asked_usrids('is', chat_id, user_id, username, message_id, None):
+            tools.asked_usrids('add', chat_id, user_id, username, message_id, message_thread_id)
         tools.append_log(f'удалено до авторизации: {r}', ping)
         return
     elif tools.switch_authorize_all and tools.switch_entire_authorization:
         try:
-            tools.asked_usrids('remove', user_id, '', None)
+            tools.asked_usrids('remove', chat_id, user_id, '', None)
             if user_id not in allowed_userids:
                 allowed_userids.append(user_id)
                 with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
@@ -113,6 +112,13 @@ def group_handler(r):
         except ValueError:
             pass
     tools.append_history(user_id, r)
+    if 'entities' in r['message'] and (r['message']['entities'][0]['type'] == 'mention' or r['message']['entities'][0]['type'] == 'url'):
+        tools.threading_delete_message(chat_id, message_id)
+        tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 25)
+        reason = f'url or mention'
+        tools.send_message(chat_id, f"Пользователь {first_name} ограничен за стоп-слово🔇")
+        tools.append_log(f'удалено {reason} от {first_name}({user_id})', ping)
+        return
     if ('forward_origin' in r['message'] or 'reply_markup' in r['message']) and tools.switch_message_deletion and tools.switch_forward_deletion and (user_id not in tools.ids and true_user_id not in tools.ids):
         tools.threading_delete_message(chat_id, message_id)
         if 'reply_markup' in r['message']:
@@ -131,11 +137,13 @@ def group_handler(r):
         if (duplicate_count[0] > tools.max_duplicate_messages or wordlist_result[0]) and (user_id not in tools.get_admins()):
             tools.threading_delete_message(chat_id, message_id)
             if wordlist_result[0]:
-                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 8)
+                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 25)
                 reason = f'по фильтру(<i>{wordlist_result[1]}</i>)'
+                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за стоп-слово🔇")
             else:
-                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 20)
+                tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 5)
                 reason = f'{duplicate_count[0]}-е подряд'
+                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за спам🔇")
             tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}', ping)
             return
     if 'reply_to_message' in r['message'] and ('text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
@@ -150,8 +158,8 @@ def group_handler(r):
                 username = r['message']['reply_to_message']['from']['first_name']
             tools.append_log(f'/notrusted {untrust_user_id} ({username})')
             # tools.send_message(chat_id, f'done')
-            if not tools.asked_usrids('is', untrust_user_id, username, reply_to_message_id):
-                tools.asked_usrids('add', untrust_user_id, username, reply_to_message_id)
+            if not tools.asked_usrids('is', chat_id, untrust_user_id, username, reply_to_message_id, None):
+                tools.asked_usrids('add', chat_id, untrust_user_id, username, reply_to_message_id, message_thread_id)
             try:
                 if untrust_user_id in allowed_userids:
                     allowed_userids.remove(untrust_user_id)

@@ -17,13 +17,13 @@ switch_message_deletion = True  # T любое удаление сообщени
 switch_forward_deletion = True  # T пересылка соо в группу
 
 spam_timeout = 60 * 20  # в секундах
-authentication_message_timeout = 30
-max_duplicate_messages = 2
+authentication_message_timeout = 120
+max_duplicate_messages = 7
 max_retries = 5
 
 load_dotenv(find_dotenv())
 url = os.environ.get('URL')
-future_group_id = int(os.environ.get('FUTURE_GROUP_ID'))
+future_group_id = str(os.environ.get('FUTURE_GROUP_ID'))
 if os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False):
     path = '/root/futurebot/'
 else:
@@ -48,17 +48,17 @@ with open(f'{path}data/asked_userids.txt', 'r', encoding='utf-8') as fl:
     asked_userids = fl.read().split('\n')
 
 
-def wait_for_deletion(message_id, delay: int):
-    timer = threading.Timer(delay, request_delete_message, args=(future_group_id, message_id))
+def wait_for_deletion(chat_id: int, message_id, delay: int):
+    timer = threading.Timer(delay, request_delete_message, args=(chat_id, message_id))
     timer.start()
 
 
-def threading_delete_message(chat_id, message_id):
+def threading_delete_message(chat_id: int, message_id):
     threading.Thread(target=request_delete_message, args=(chat_id, message_id)).start()
     # request_delete_message(chat_id, message_id)
 
 
-def request_delete_message(chat_id, message_id):
+def request_delete_message(chat_id: int, message_id):
     if switch_safe_mode or not switch_message_deletion:
         print(url + f'deleteMessage?chat_id={chat_id}&message_id={message_id}')
     else:
@@ -71,7 +71,7 @@ def request_delete_message(chat_id, message_id):
                 print(str(e))
 
 
-def asked_usrids(action, user_id, username, reply_to_message_id: int | None, message_thread_id: int = None):
+def asked_usrids(action, chat_id: int, user_id, username, reply_to_message_id: int | None, message_thread_id: int = None):
     if action == 'remove' and switch_entire_authorization:
         for i in asked_userids:
             if i.split()[0] == user_id:
@@ -80,12 +80,12 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
             f.write('\n'.join(asked_userids))
     elif action == 'add' and switch_entire_authorization:
         if not switch_safe_mode:
-            r = send_message(future_group_id, f'{username}, добро пожаловать в чатик! Нажимайте кнопку ниже, только если Вы человек. Иначе Вы не сможете писать в чат', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id, message_thread_id=message_thread_id)
-            threading_delete_message(future_group_id, reply_to_message_id)
-            restrictChatMember_msgSend(chat_id=future_group_id, user_id=user_id)
+            r = send_message(chat_id, f'{username}, добро пожаловать в чат! Нажимайте кнопку ниже, только если Вы человек.', {'inline_keyboard': [[{'text': 'Подтверждаю', 'callback_data': user_id}]]}, reply_to_message_id=reply_to_message_id, message_thread_id=message_thread_id)
+            threading_delete_message(chat_id, reply_to_message_id)
+            restrictChatMember_msgSend(chat_id=chat_id, user_id=user_id)
             if r is not None and r.json()['ok']:  # сообщение не удалено раньше
                 print(r.json())
-                wait_for_deletion(r.json()['result']['message_id'], authentication_message_timeout)  # удаляет мсг аутентификации
+                wait_for_deletion(chat_id, r.json()['result']['message_id'], authentication_message_timeout)  # удаляет мсг аутентификации
                 asked_userids.append(f'{user_id} {int(time.time())}')
                 with open(f'{path}data/asked_userids.txt', 'w', encoding='utf-8') as f:
                     f.write('\n'.join(asked_userids))
@@ -96,9 +96,9 @@ def asked_usrids(action, user_id, username, reply_to_message_id: int | None, mes
                 flag = True
                 if int(time.time()) - int(i.split()[1]) > authentication_message_timeout:
                     asked_userids.remove(i)
-                    asked_usrids('add', user_id, username, reply_to_message_id)
+                    asked_usrids('add', chat_id, user_id, username, reply_to_message_id, message_thread_id)
                 else:
-                    threading_delete_message(future_group_id, reply_to_message_id)  # инчае остаются соо при активной авторизации и новых соо
+                    threading_delete_message(chat_id, reply_to_message_id)  # инчае остаются соо при активной авторизации и новых соо
                 break
         return flag
 
@@ -330,11 +330,9 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
             try:
                 r = requests.post(url + 'restrictChatMember', json=send_body, timeout=(2, 2))
                 if r.json()['ok']:
-                    return
+                    break
             except Exception as e:
                 print(str(e))
-        # print(r.json())
-        return r
 
 
 def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
