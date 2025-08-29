@@ -117,7 +117,7 @@ def group_handler(r):
         tools.threading_delete_message(chat_id, message_id)
         tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 25)
         reason = f'url or mention'
-        tools.send_message(chat_id, f"Пользователь {first_name} ограничен за ссылку🔇")
+        #tools.send_message(chat_id, f"Пользователь {first_name} ограничен за ссылку🔇")
         tools.append_log(f'удалено {reason} от {first_name}({user_id})', ping)
         return
     if ('forward_origin' in r['message'] or 'reply_markup' in r['message']) and tools.switch_message_deletion and tools.switch_forward_deletion and (user_id not in tools.ids and true_user_id not in tools.ids):
@@ -359,6 +359,7 @@ def dm_handler(r):
         case '/get_data' if user_id == "647372660":
             tools.upload_file(user_id, f'{path}data/asked_userids.txt')
             tools.upload_file(user_id, f'{path}data/quires.txt')
+            tools.upload_file(user_id, f'{path}data/quires.txt')
         case 'админка' if user_id in tools.ids:
             data = {'keyboard': [[{'text': 'accept all авторизация'}, {'text': 'задать max_duplicate_messages'}],
                                  [{'text': 'вся авторизация (отправка, удаление)'}, {'text': 'любые удаления сообщений'}, {'text': 'запретить форвард'}, {'text': 'запр. url/mention'}],
@@ -427,7 +428,7 @@ def dm_handler(r):
             tools.send_message(user_id, f'Текущее значение: <b>{tools.switch_forward_deletion}</b>. Изменить на <b>{not tools.switch_forward_deletion}</b>?', data)
         case 'Главное меню':
             tools.send_message(user_id, 'Возврат в главное меню', tools.keyboards(user_id))
-        case m if m.startswith('/command ') and user_id == "647372660":
+        case m if m.startswith('/command ') and False and user_id == "647372660":
             command = msg.replace('/command ', '', 1).strip()
             # Проверяем длину полученной строки
             if len(command) < 3:
