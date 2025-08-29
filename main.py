@@ -428,7 +428,7 @@ def dm_handler(r):
             tools.send_message(user_id, f'Текущее значение: <b>{tools.switch_forward_deletion}</b>. Изменить на <b>{not tools.switch_forward_deletion}</b>?', data)
         case 'Главное меню':
             tools.send_message(user_id, 'Возврат в главное меню', tools.keyboards(user_id))
-        case m if m.startswith('/command ') and False and user_id == "647372660":
+        case m if m.startswith('/command ') and user_id == "647372660":
             command = msg.replace('/command ', '', 1).strip()
             # Проверяем длину полученной строки
             if len(command) < 3:
