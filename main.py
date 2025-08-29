@@ -139,11 +139,11 @@ def group_handler(r):
             if wordlist_result[0]:
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 25)
                 reason = f'по фильтру(<i>{wordlist_result[1]}</i>)'
-                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за стоп-слово🔇")
+                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за стоп-слово🔇", message_thread_id=message_thread_id)
             else:
                 tools.restrictChatMember_msgSend(chat_id, user_id, 60 * 5)
                 reason = f'{duplicate_count[0]}-е подряд'
-                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за спам🔇")
+                tools.send_message(chat_id, f"Пользователь {first_name} ограничен за спам🔇", message_thread_id=message_thread_id)
             tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}', ping)
             return
     if 'reply_to_message' in r['message'] and ('text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
