@@ -153,15 +153,15 @@ def group_handler(r):
         tools.threading_delete_message(chat_id, r['message']['message_id'])
         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
         if tools.switch_entire_authorization:
-            tools.restrictChatMember_msgSend(chat_id, untrust_user_id)
+            tools.restrictChatMember_msgSend(chat_id, untrust_user_id, 60*60*24*3)
             if False:# 'username' in r['message']['reply_to_message']['from']:
                 username = '@' + r['message']['reply_to_message']['from']['username']
             else:
                 username = r['message']['reply_to_message']['from']['first_name']
             tools.append_log(f'/notrusted {untrust_user_id} ({username})')
             # tools.send_message(chat_id, f'done')
-            if not tools.asked_usrids('is', chat_id, untrust_user_id, username, reply_to_message_id, None):
-                tools.asked_usrids('add', chat_id, untrust_user_id, username, reply_to_message_id, message_thread_id)
+           # if not tools.asked_usrids('is', chat_id, untrust_user_id, username, reply_to_message_id, None):
+             #   tools.asked_usrids('add', chat_id, untrust_user_id, username, reply_to_message_id, message_thread_id)
             try:
                 if untrust_user_id in allowed_userids:
                     allowed_userids.remove(untrust_user_id)
