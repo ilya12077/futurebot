@@ -334,7 +334,7 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
             except Exception as e:
                 print(str(e))
 
-def banChatMember_msgSend(chat_id: int | str, user_id: int | str):
+def banChatMember(chat_id: int | str, user_id: int | str):
     until_date = int(time.time()) + duration
     send_body = {
         'chat_id': chat_id,
