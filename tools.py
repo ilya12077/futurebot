@@ -334,6 +334,24 @@ def restrictChatMember_msgSend(chat_id: int | str, user_id: int | str, duration:
             except Exception as e:
                 print(str(e))
 
+def banChatMember_msgSend(chat_id: int | str, user_id: int | str):
+    until_date = int(time.time()) + duration
+    send_body = {
+        'chat_id': chat_id,
+        'user_id': user_id
+    }
+    # append_log(f'{user_id} ограничен в отправке до {until_date}')
+    if switch_safe_mode:
+        print(url + 'banChatMember', send_body)
+    else:
+        r = None
+        for i in range(max_retries):
+            try:
+                r = requests.post(url + 'BanChatMember', json=send_body, timeout=(5, 5))
+                if r.json()['ok']:
+                    break
+            except Exception as e:
+                print(str(e))
 
 def unRestrictChatMember_msgSend(chat_id: int | str, user_id: int | str):
     send_body = {
