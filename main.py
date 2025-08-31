@@ -148,11 +148,11 @@ def group_handler(r):
                 tools.send_message(chat_id, f"Пользователь {first_name} ограничен за спам🔇", message_thread_id=message_thread_id)
             tools.append_log(f'удалено {reason} от {first_name}({user_id}): {duplicate_count[1]}', ping)
             return
-    if 'reply_to_message' in r['message'] and ('text' in r['message'] and r['message']['text'] == '/notrust') and user_id in tools.ids:
+    if 'reply_to_message' in r['message'] and ('text' in r['message']) and user_id in tools.ids:
         reply_to_message_id = r['message']['reply_to_message']['message_id']
         tools.threading_delete_message(chat_id, r['message']['message_id'])
         untrust_user_id = str(r['message']['reply_to_message']['from']['id'])
-        if tools.switch_entire_authorization:
+        if r['message']['text'] == '/notrust':
             tools.restrictChatMember_msgSend(chat_id, untrust_user_id, 60*60*24*3)
             if False:# 'username' in r['message']['reply_to_message']['from']:
                 username = '@' + r['message']['reply_to_message']['from']['username']
@@ -169,6 +169,16 @@ def group_handler(r):
                         f.write(' '.join(allowed_userids))
             except ValueError:
                 pass
+        elif r['message']['text'] == '/ban':
+            tools.banChatMember(chat_it, user_id)
+            try:
+                if untrust_user_id in allowed_userids:
+                    allowed_userids.remove(untrust_user_id)
+                    with open(f'{path}data/allowed_userids.txt', 'w', encoding='utf-8') as f:
+                        f.write(' '.join(allowed_userids))
+            except ValueError:
+                pass
+            
 
 
 def waiting_user_handler(r):
