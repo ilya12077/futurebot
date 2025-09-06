@@ -321,16 +321,16 @@ def dm_handler(r):
                     else:
                         log.append(line)
                 log = ''.join(log)
+                #print(len(log))
                 if len(log) >0:
                     send_body = {
                         'chat_id': user_id,
-                        'text': log,
+                        'text': log[:3000],
                         'parse_mode': 'HTML',
                         'reply_markup': tools.keyboards(user_id)
                     }
-                    requests.post(tools.url + 'sendMessage', json=send_body)
-                else:
-                    tools.upload_file(user_id, f'{path}data/log.txt')
+                    r=  requests.post(tools.url + 'sendMessage', json=send_body)
+                    #print(r.json())
         case '/clear_logs' if user_id in tools.ids:
             with open(f'{path}data/log.txt', 'w', encoding='utf-8') as f:
                 f.write(':)')
