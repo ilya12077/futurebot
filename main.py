@@ -321,7 +321,7 @@ def dm_handler(r):
                     else:
                         log.append(line)
                 log = ''.join(log)
-                if len(log) <= 4096:
+                if len(log) >0:
                     send_body = {
                         'chat_id': user_id,
                         'text': log,
